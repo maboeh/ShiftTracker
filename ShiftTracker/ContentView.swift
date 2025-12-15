@@ -19,15 +19,27 @@ struct ContentView: View {
                 ForEach(shifts, id: \.self) { shift in
                     Text(shift)
                 }
+                .onDelete(perform: deleteShifts)
             }
             .navigationTitle("My Shifts")
             .toolbar {
-                Button("Add") {
-                    // Fügt "Shift 1", "Shift 2", etc. hinzu
-                    shifts.append("Shift \(shifts.count + 1)")
+                ToolbarItem(placement: .topBarTrailing){
+                    Button("Add") {
+                        // Fügt "Shift 1", "Shift 2", etc. hinzu
+                        shifts.append("Shift \(shifts.count + 1)")
+                    }
+
                 }
-            }
+                ToolbarItem(placement: .topBarLeading){
+                    EditButton()
+                }
+                            }
         }
+        
+        
+    }
+    private func deleteShifts(at offsets: IndexSet) {
+        shifts.remove(atOffsets: offsets)
     }
 }
 
