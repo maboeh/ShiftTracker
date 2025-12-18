@@ -6,18 +6,21 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
     // @State = "Diese Variable kann sich ändern und UI updated sich automatisch"
     // [String] = Array von Texten
-    @State private var shifts: [String] = []
+    @Query var shifts: [Shift]
+    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
         NavigationStack {
             List {
                 // ForEach = Schleife durch alle Shifts
-                ForEach(shifts, id: \.self) { shift in
-                    Text(shift)
+                // id: \.self = Jeder String identifiziert sich selbst
+                ForEach(shifts) { shift in
+                    Text("\(shift.startTime, format: .dateTime)")
                 }
                 .onDelete(perform: deleteShifts)
             }
@@ -26,20 +29,27 @@ struct ContentView: View {
                 ToolbarItem(placement: .topBarTrailing){
                     Button("Add") {
                         // Fügt "Shift 1", "Shift 2", etc. hinzu
-                        shifts.append("Shift \(shifts.count + 1)")
+                        modelContext.insert(Shift(startTime: Date(), endTime: Date().addingTimeInterval(3600)))
+                        
                     }
-
                 }
                 ToolbarItem(placement: .topBarLeading){
                     EditButton()
                 }
-                            }
+                
+                
+                
+                
+            }
         }
-        
-        
     }
     private func deleteShifts(at offsets: IndexSet) {
-        shifts.remove(atOffsets: offsets)
+        for index in offsets {
+            
+            modelContext.delete(shifts[index])
+            
+        }
+        
     }
 }
 
