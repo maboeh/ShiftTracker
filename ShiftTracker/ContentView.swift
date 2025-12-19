@@ -23,7 +23,12 @@ struct ContentView: View {
             List {
                
                 ForEach(shifts) { shift in
-                    Text("\(shift.startTime, format: .dateTime)")
+                    if shift.endTime == nil {
+                        Text("🟢 Aktiv\(shift.startTime, format: .dateTime)")
+                        
+                    } else {
+                        Text("Beendet")   // Placeholder
+                    }
                 }
                 .onDelete(perform: deleteShifts)
             }
