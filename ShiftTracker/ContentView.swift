@@ -27,7 +27,7 @@ struct ContentView: View {
                         if shift.endTime == nil {
                             Text("🟢 Aktiv \(shift.startTime.formatted(date: .omitted, time: .shortened))")
                         } else {
-                            Text("Beendet")
+                            Text("\(shift.startTime.formatted(date: .omitted, time: .shortened)) - \(shift.endTime!.formatted(date: .omitted, time: .shortened)) (\(String(format: "%.1fh", shift.duration / 3600)))")
                         }
                     }
                 }
