@@ -23,11 +23,12 @@ struct ContentView: View {
             List {
                
                 ForEach(shifts) { shift in
-                    if shift.endTime == nil {
-                        Text("🟢 Aktiv\(shift.startTime, format: .dateTime)")
-                        
-                    } else {
-                        Text("Beendet")   // Placeholder
+                    HStack {  // 👈 Wrap alles in eine View!
+                        if shift.endTime == nil {
+                            Text("🟢 Aktiv \(shift.startTime.formatted(date: .omitted, time: .shortened))")
+                        } else {
+                            Text("Beendet")
+                        }
                     }
                 }
                 .onDelete(perform: deleteShifts)
