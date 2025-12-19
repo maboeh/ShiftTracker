@@ -13,12 +13,15 @@ struct ContentView: View {
     // [String] = Array von Texten
     @Query var shifts: [Shift]
     @Environment(\.modelContext) private var modelContext
+    var activeShift: Shift? {
+        shifts.first(where: {$0.endTime == nil })  }
+    
     
     var body: some View {
+      
         NavigationStack {
             List {
-                // ForEach = Schleife durch alle Shifts
-                // id: \.self = Jeder String identifiziert sich selbst
+               
                 ForEach(shifts) { shift in
                     Text("\(shift.startTime, format: .dateTime)")
                 }
@@ -27,10 +30,15 @@ struct ContentView: View {
             .navigationTitle("My Shifts")
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing){
-                    Button("Add") {
-                        // Fügt "Shift 1", "Shift 2", etc. hinzu
-                        modelContext.insert(Shift(startTime: Date(), endTime: Date().addingTimeInterval(3600)))
-                        
+                    Button("\(activeShift == nil ? "Einstempeln" : "Ausstempeln")") {
+                        if activeShift == nil {
+                            // NEUEN Shift ERSTELLEN und zur DB hinzufügen!
+                            let newShift = Shift(startTime: Date(), endTime: nil)
+                            modelContext.insert(newShift)
+                        } else {
+                            // Existierenden Shift MODIFIZIEREN
+                            activeShift!.endTime = Date()
+                        }
                     }
                 }
                 ToolbarItem(placement: .topBarLeading){
