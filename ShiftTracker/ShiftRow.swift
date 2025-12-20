@@ -11,9 +11,37 @@ struct ShiftRow: View {
     let shift: Shift
     
     var body: some View {
-        HStack(spacing: 12) {  // spacing = Abstand zwischen Elementen
-            // Hier bauen wir gleich zusammen auf
-            Text("Test")
+        HStack(spacing: 12) {
+            // 1. STATUS ICON (links)
+            Image(systemName: shift.endTime == nil ? "clock.fill" : "checkmark.circle.fill")
+                .foregroundStyle(shift.endTime == nil ? .green : .blue)
+                .font(.title2)
+            
+            // 2. ZEITEN (Mitte)
+            VStack(alignment: .leading, spacing: 4) {
+                // Startzeit
+                Text(shift.startTime.formatted(date: .omitted, time: .shortened))
+                    .font(.headline)
+                
+                // Status-Text
+                if shift.endTime == nil {
+                    Text("Läuft gerade...")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                } else {
+                    Text("bis \(shift.endTime!.formatted(date: .omitted, time: .shortened))")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+            
+            Spacer()  // ← Schiebt alles nach links, Duration nach rechts
+            
+            // 3. DURATION (rechts)
+            Text(String(format: "%.1f h", shift.duration / 3600))
+                .font(.headline)
+                .foregroundStyle(shift.endTime == nil ? .green : .primary)
         }
+        .padding(.vertical, 8)  // Mehr Höhe für die Row
     }
 }
