@@ -10,6 +10,18 @@ import SwiftUI
 struct ShiftRow: View {
     let shift: Shift
     
+    @State private var currentTime = Date.now
+    @State private var timer: Timer?  // NEU: Timer-Referenz
+    
+    private var liveDuration: TimeInterval {
+        if shift.endTime == nil {
+            return currentTime.timeIntervalSince(shift.startTime)
+        
+        }else{
+            return shift.duration
+        }
+    }
+    
     private var formattedDate: String {
             let calendar = Calendar.current
             
@@ -48,10 +60,33 @@ struct ShiftRow: View {
             Spacer()  // ← Schiebt alles nach links, Duration nach rechts
             
             // 3. DURATION (rechts)
-            Text(String(format: "%.1f h", shift.duration / 3600))
+            Text(String(format: "%.1f h", liveDuration / 3600))
                 .font(.headline)
                 .foregroundStyle(shift.endTime == nil ? .green : .primary)
         }
-        .padding(.vertical, 8)  // Mehr Höhe für die Row
+        .padding(.vertical, 8)
+        .onAppear(){
+            startTimer()
+        }
+        .onDisappear{
+            stopTimer()
+        }
     }
-}
+    
+    // NEU: Timer-Funktionen
+        private func startTimer() {
+            // Nur für aktive Shifts
+            guard shift.endTime == nil else { return }
+            
+            // Erstelle Timer der jede Sekunde feuert
+            timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
+                currentTime = Date.now  // Update die Zeit
+            }
+        }
+        
+        private func stopTimer() {
+            timer?.invalidate()  // Stoppe den Timer
+            timer = nil          // Lösche die Referenz
+        }
+    }
+
