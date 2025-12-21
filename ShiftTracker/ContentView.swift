@@ -23,13 +23,7 @@ struct ContentView: View {
             List {
                
                 ForEach(shifts) { shift in
-                    HStack {  // 👈 Wrap alles in eine View!
-                        if shift.endTime == nil {
-                            Text("🟢 Aktiv \(shift.startTime.formatted(date: .omitted, time: .shortened))")
-                        } else {
-                            Text("\(shift.startTime.formatted(date: .omitted, time: .shortened)) - \(shift.endTime!.formatted(date: .omitted, time: .shortened)) (\(String(format: "%.1fh", shift.duration / 3600)))")
-                        }
-                    }
+                    ShiftRow(shift: shift)  // ← Das war's! 🎉
                 }
                 .onDelete(perform: deleteShifts)
             }
