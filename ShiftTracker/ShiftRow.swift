@@ -10,6 +10,18 @@ import SwiftUI
 struct ShiftRow: View {
     let shift: Shift
     
+    private var formattedDate: String {
+            let calendar = Calendar.current
+            
+            if calendar.isDateInToday(shift.startTime) {
+                return "Heute"
+            } else if calendar.isDateInYesterday(shift.startTime) {
+                return "Gestern"
+            } else {
+                return shift.startTime.formatted(date: .abbreviated, time: .omitted)
+            }
+        }
+    
     var body: some View {
         HStack(spacing: 12) {
             // 1. STATUS ICON (links)
@@ -17,13 +29,11 @@ struct ShiftRow: View {
                 .foregroundStyle(shift.endTime == nil ? .green : .blue)
                 .font(.title2)
             
-            // 2. ZEITEN (Mitte)
             VStack(alignment: .leading, spacing: 4) {
-                // Startzeit
-                Text(shift.startTime.formatted(date: .omitted, time: .shortened))
+                // Datum + Uhrzeit zusammen
+                Text("\(formattedDate), \(shift.startTime.formatted(date: .omitted, time: .shortened))")
                     .font(.headline)
                 
-                // Status-Text
                 if shift.endTime == nil {
                     Text("Läuft gerade...")
                         .font(.caption)
