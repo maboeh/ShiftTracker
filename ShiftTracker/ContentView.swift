@@ -21,17 +21,7 @@ struct ContentView: View {
       
         NavigationStack {
             List {
-                // DEBUG Section
-                                Section("DEBUG: Shift Types") {
-                                    ForEach(shiftTypes) { type in
-                                        HStack {
-                                            Circle()
-                                                .fill(type.color)
-                                                .frame(width: 20, height: 20)
-                                            Text(type.name)
-                                        }
-                                    }
-                                }
+               
                 ForEach(shifts) { shift in
                     NavigationLink {
                         ShiftDetailView(shift: shift)
