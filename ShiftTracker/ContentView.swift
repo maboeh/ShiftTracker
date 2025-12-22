@@ -9,9 +9,9 @@ import SwiftUI
 import SwiftData
 
 struct ContentView: View {
-    // @State = "Diese Variable kann sich ändern und UI updated sich automatisch"
-    // [String] = Array von Texten
+   
     @Query var shifts: [Shift]
+    @Query var shiftTypes: [ShiftType]
     @Environment(\.modelContext) private var modelContext
     var activeShift: Shift? {
         shifts.first(where: {$0.endTime == nil })  }
@@ -21,7 +21,17 @@ struct ContentView: View {
       
         NavigationStack {
             List {
-               
+                // DEBUG Section
+                                Section("DEBUG: Shift Types") {
+                                    ForEach(shiftTypes) { type in
+                                        HStack {
+                                            Circle()
+                                                .fill(type.color)
+                                                .frame(width: 20, height: 20)
+                                            Text(type.name)
+                                        }
+                                    }
+                                }
                 ForEach(shifts) { shift in
                     NavigationLink {
                         ShiftDetailView(shift: shift)

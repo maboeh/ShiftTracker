@@ -12,7 +12,8 @@ import SwiftData
 class Shift {
     var startTime: Date
     var endTime: Date?
-    var shiftTypeName: String?  // optional - kann leer sein
+    
+    var shiftType: ShiftType?
     
     
     var duration: TimeInterval {
@@ -23,9 +24,9 @@ class Shift {
         }
     }
     
-    init(startTime: Date, endTime: Date? = nil, shiftTypeName: String? = nil) {
+    init(startTime: Date, endTime: Date? = nil, shiftType: ShiftType? = nil) {
         self.startTime = startTime
         self.endTime = endTime
-        self.shiftTypeName = shiftTypeName
+        self.shiftType = shiftType
     }
 }
