@@ -23,7 +23,11 @@ struct ContentView: View {
             List {
                
                 ForEach(shifts) { shift in
-                    ShiftRow(shift: shift)  // ← Das war's! 🎉
+                    NavigationLink {
+                        ShiftDetailView(shift: shift)
+                    } label: {
+                        ShiftRow(shift: shift)
+                    }
                 }
                 .onDelete(perform: deleteShifts)
             }
