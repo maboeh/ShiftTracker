@@ -11,7 +11,6 @@ import SwiftData
 struct ContentView: View {
    
     @Query var shifts: [Shift]
-    @Query var shiftTypes: [ShiftType]
     @Environment(\.modelContext) private var modelContext
     var activeShift: Shift? {
         shifts.first(where: {$0.endTime == nil })  }
