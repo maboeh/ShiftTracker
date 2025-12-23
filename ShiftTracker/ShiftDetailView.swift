@@ -12,17 +12,18 @@ struct ShiftDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @Environment(\.modelContext) private var modelContext
     
-    // NEU: State für "Shift läuft noch"
+    @Query var shiftTypes: [ShiftType]  // NEU: Alle verfügbaren Types
+    
     @State private var isActive: Bool
     
+    // NEU: Computed Property für Validierung
     private var isEndBeforeStart: Bool {
-            if let end = shift.endTime {
-                return end < shift.startTime
-            }
-            return false
+        if let end = shift.endTime {
+            return end < shift.startTime
         }
+        return false
+    }
     
-    // NEU: Init um isActive zu setzen
     init(shift: Shift) {
         self.shift = shift
         _isActive = State(initialValue: shift.endTime == nil)
@@ -35,19 +36,15 @@ struct ShiftDetailView: View {
                           selection: $shift.startTime,
                           displayedComponents: [.date, .hourAndMinute])
                 
-                // NEU: Toggle für aktiven Shift
                 Toggle("Shift läuft noch", isOn: $isActive)
                     .onChange(of: isActive) { oldValue, newValue in
                         if newValue {
-                            // Shift wurde aktiviert → endTime auf nil
                             shift.endTime = nil
                         } else {
-                            // Shift wurde beendet → endTime auf jetzt
                             shift.endTime = Date()
                         }
                     }
                 
-                // NEU: DatePicker nur wenn Shift NICHT aktiv
                 if !isActive {
                     DatePicker("Ende",
                               selection: Binding(
@@ -57,10 +54,28 @@ struct ShiftDetailView: View {
                               displayedComponents: [.date, .hourAndMinute])
                     
                     if isEndBeforeStart {
-                                            Text("⚠️ Ende liegt vor Start")
-                                                .foregroundStyle(.red)
-                                                .font(.caption)
-                                        }
+                        Text("⚠️ Ende liegt vor Start")
+                            .foregroundStyle(.red)
+                            .font(.caption)
+                    }
+                }
+            }
+            
+            // NEU: Shift Type Section
+            Section("Schicht-Art") {
+                Picker("Type", selection: $shift.shiftType) {
+                    Text("Keine Auswahl")
+                        .tag(nil as ShiftType?)
+                    
+                    ForEach(shiftTypes) { type in
+                        HStack {
+                            Circle()
+                                .fill(type.color)
+                                .frame(width: 12, height: 12)
+                            Text(type.name)
+                        }
+                        .tag(type as ShiftType?)
+                    }
                 }
             }
             
@@ -72,14 +87,14 @@ struct ShiftDetailView: View {
             }
             
             Section {
-                            Button(role: .destructive) {
-                                modelContext.delete(shift)
-                                dismiss()
-                            } label: {
-                                Label("Shift löschen", systemImage: "trash")
-                                    .frame(maxWidth: .infinity)
-                            }
-                        }
+                Button(role: .destructive) {
+                    modelContext.delete(shift)
+                    dismiss()
+                } label: {
+                    Label("Shift löschen", systemImage: "trash")
+                        .frame(maxWidth: .infinity)
+                }
+            }
         }
         .navigationTitle("Shift bearbeiten")
         .navigationBarTitleDisplayMode(.inline)
