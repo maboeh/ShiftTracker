@@ -47,10 +47,47 @@ struct ContentView: View {
         
         return result
     }
+    
+    // NEU: Statistiken für diese Woche
+    private var weekStats: (totalHours: Double, overtime: Double) {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        // Alle Shifts dieser Woche (inkl. heute)
+        let thisWeekShifts = shifts.filter { shift in
+            calendar.isDate(shift.startTime, equalTo: now, toGranularity: .weekOfYear)
+        }
+        
+        // Gesamtstunden berechnen
+        let totalSeconds = thisWeekShifts.reduce(0.0) { sum, shift in
+            sum + shift.duration
+        }
+        let totalHours = totalSeconds / 3600
+        
+        // Überstunden = Alles über 40h
+        let targetHours = 40.0
+        let overtime = totalHours - targetHours
+        
+        return (totalHours, overtime)
+    }
+
+    private var weekProgress: Double {
+        let targetHours = 40.0
+        return min(weekStats.totalHours / targetHours, 1.0)
+    }
     var body: some View {
       
         NavigationStack {
             List {
+                Section {
+                               WeekStatsCard(
+                                   totalHours: weekStats.totalHours,
+                                   overtime: weekStats.overtime,
+                                   progress: weekProgress
+                               )
+                               .listRowInsets(EdgeInsets())  // Entfernt Standard-Padding
+                               .listRowBackground(Color.clear)  // Transparenter Hintergrund
+                           }
                 ForEach(groupedShifts, id: \.0) { section in
                     Section(section.0) {  // section.0 = "Heute", "Gestern", etc.
                         ForEach(section.1) { shift in  // section.1 = Array von Shifts

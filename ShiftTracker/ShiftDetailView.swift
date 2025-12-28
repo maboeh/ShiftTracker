@@ -81,8 +81,14 @@ struct ShiftDetailView: View {
             
             Section("Info") {
                 LabeledContent("Dauer") {
-                    Text(String(format: "%.1f Stunden", shift.duration / 3600))
-                        .foregroundStyle(isEndBeforeStart ? .red : .primary)
+                    if isEndBeforeStart {
+                        Text("Ungültig")
+                            .foregroundStyle(.red)
+                            .fontWeight(.semibold)
+                    } else {
+                        Text(String(format: "%.1f Stunden", shift.duration / 3600))
+                            .foregroundStyle(.primary)
+                    }
                 }
             }
             
@@ -103,6 +109,7 @@ struct ShiftDetailView: View {
                 Button("Fertig") {
                     dismiss()
                 }
+                .disabled(isEndBeforeStart)  // NEU: Deaktiviert wenn ungültig!
             }
         }
     }

@@ -18,9 +18,11 @@ class Shift {
     
     var duration: TimeInterval {
         if let end = endTime {
-            return end.timeIntervalSince(startTime)  
+            let duration = end.timeIntervalSince(startTime)
+            return max(duration, 0)  // NIE negativ!
         } else {
-            return Date.now.timeIntervalSince(startTime)
+            let duration = Date.now.timeIntervalSince(startTime)
+            return max(duration, 0)  // NIE negativ!
         }
     }
     
