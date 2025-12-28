@@ -43,14 +43,27 @@ struct WeekStatsCard: View {
             
             // Überstunden
             HStack {
-                Text("Überstunden")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                Spacer()
-                Text(String(format: "%+.1f Std", overtime))
-                    .font(.caption)
-                    .fontWeight(.semibold)
-                    .foregroundStyle(overtime >= 0 ? .green : .orange)
+                if overtime > 0 {
+                    // NUR wenn tatsächlich Überstunden
+                    Text("Überstunden")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(String(format: "+%.1f Std", overtime))
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.green)
+                } else {
+                    // Unter 40h: Zeige Fortschritt zum Ziel
+                    Text("Noch bis 40h")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Spacer()
+                    Text(String(format: "%.1f Std", 40.0 - totalHours))
+                        .font(.caption)
+                        .fontWeight(.semibold)
+                        .foregroundStyle(.orange)
+                }
             }
         }
         .padding()
