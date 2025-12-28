@@ -7,28 +7,64 @@
 
 import SwiftUI
 import SwiftData
-
 struct ContentView: View {
-   
-    @Query var shifts: [Shift]
+    @Query(sort: \Shift.startTime, order: .reverse) var shifts: [Shift]
     @Environment(\.modelContext) private var modelContext
+    
     var activeShift: Shift? {
-        shifts.first(where: {$0.endTime == nil })  }
+        shifts.first(where: { $0.endTime == nil })
+    }
     
-    
+    // NEU: Gruppierte Shifts
+    private var groupedShifts: [(String, [Shift])] {
+        let calendar = Calendar.current
+        let now = Date()
+        
+        // Gruppierung
+        var heute: [Shift] = []
+        var gestern: [Shift] = []
+        var dieseWoche: [Shift] = []
+        var aelter: [Shift] = []
+        
+        for shift in shifts {
+            if calendar.isDateInToday(shift.startTime) {
+                heute.append(shift)
+            } else if calendar.isDateInYesterday(shift.startTime) {
+                gestern.append(shift)
+            } else if calendar.isDate(shift.startTime, equalTo: now, toGranularity: .weekOfYear) {
+                dieseWoche.append(shift)
+            } else {
+                aelter.append(shift)
+            }
+        }
+        
+        // Nur nicht-leere Gruppen zurückgeben
+        var result: [(String, [Shift])] = []
+        if !heute.isEmpty { result.append(("Heute", heute)) }
+        if !gestern.isEmpty { result.append(("Gestern", gestern)) }
+        if !dieseWoche.isEmpty { result.append(("Diese Woche", dieseWoche)) }
+        if !aelter.isEmpty { result.append(("Älter", aelter)) }
+        
+        return result
+    }
     var body: some View {
       
         NavigationStack {
             List {
-               
-                ForEach(shifts) { shift in
-                    NavigationLink {
-                        ShiftDetailView(shift: shift)
-                    } label: {
-                        ShiftRow(shift: shift)
+                ForEach(groupedShifts, id: \.0) { section in
+                    Section(section.0) {  // section.0 = "Heute", "Gestern", etc.
+                        ForEach(section.1) { shift in  // section.1 = Array von Shifts
+                            NavigationLink {
+                                ShiftDetailView(shift: shift)
+                            } label: {
+                                ShiftRow(shift: shift)
+                            }
+                        }
+                        .onDelete { indexSet in
+                            deleteShifts(in: section.1, at: indexSet)
+                        }
                     }
                 }
-                .onDelete(perform: deleteShifts)
             }
             .navigationTitle("My Shifts")
             .toolbar {
@@ -54,13 +90,10 @@ struct ContentView: View {
             }
         }
     }
-    private func deleteShifts(at offsets: IndexSet) {
+    private func deleteShifts(in shifts: [Shift], at offsets: IndexSet) {
         for index in offsets {
-            
             modelContext.delete(shifts[index])
-            
         }
-        
     }
 }
 
