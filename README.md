@@ -39,9 +39,9 @@ Entwickelt mit SwiftUI und SwiftData für eine moderne, performante User Experie
 
 ## 📸 Screenshots
 
-   ![Hauptansicht](Screenshots/main-view.png)
-   ![Detail View](Screenshots/detail-view.png)
-   ![Empty State](Screenshots/empty-state.png)
+   <img src="Screenshots/main-view.png" width="300">
+   <img src="Screenshots/detail-view.png" width="300">
+   <img src="Screenshots/empty-state.png" width="300">
 
 ## 🚀 Installation
 ```bash
