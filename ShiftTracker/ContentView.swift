@@ -4,12 +4,6 @@
 //
 //  Created by Matthias Böhnke on 14.12.25.
 //
-//
-//  ContentView.swift
-//  ShiftTracker
-//
-//  Created by Matthias Böhnke on 14.12.25.
-//
 
 import SwiftUI
 import SwiftData
@@ -17,21 +11,21 @@ import SwiftData
 struct ContentView: View {
     @Query(sort: \Shift.startTime, order: .reverse) var shifts: [Shift]
     @Environment(\.modelContext) private var modelContext
-    
+
     var activeShift: Shift? {
         shifts.first(where: { $0.endTime == nil })
     }
-    
+
     // Gruppierte Shifts
     private var groupedShifts: [(String, [Shift])] {
         let calendar = Calendar.current
         let now = Date()
-        
+
         var heute: [Shift] = []
         var gestern: [Shift] = []
         var dieseWoche: [Shift] = []
         var aelter: [Shift] = []
-        
+
         for shift in shifts {
             if calendar.isDateInToday(shift.startTime) {
                 heute.append(shift)
@@ -43,23 +37,35 @@ struct ContentView: View {
                 aelter.append(shift)
             }
         }
-        
+
         var result: [(String, [Shift])] = []
         if !heute.isEmpty { result.append(("Heute", heute)) }
         if !gestern.isEmpty { result.append(("Gestern", gestern)) }
         if !dieseWoche.isEmpty { result.append(("Diese Woche", dieseWoche)) }
         if !aelter.isEmpty { result.append(("Älter", aelter)) }
-        
+
         return result
     }
-    
-    // Statistiken für diese Woche
+
     private var weekStats: (totalHours: Double, overtime: Double) {
-        let calendar = Calendar.current
+        var calendar = Calendar.current
+        calendar.firstWeekday = 2  // 2 = Montag (1 = Sonntag)
+        
         let now = Date()
         
+        // Montag dieser Woche (00:00 Uhr)
+        guard let mondayStart = calendar.dateInterval(of: .weekOfYear, for: now)?.start else {
+            return (0, 0)
+        }
+        
+        // Sonntag 00:00 = Ende von Samstag für Filter
+        guard let sundayStart = calendar.date(byAdding: .day, value: 6, to: mondayStart) else {
+            return (0, 0)
+        }
+        
+        // Shifts zwischen Montag und Samstag
         let thisWeekShifts = shifts.filter { shift in
-            calendar.isDate(shift.startTime, equalTo: now, toGranularity: .weekOfYear)
+            shift.startTime >= mondayStart && shift.startTime < sundayStart
         }
         
         let totalSeconds = thisWeekShifts.reduce(0.0) { sum, shift in
@@ -76,12 +82,10 @@ struct ContentView: View {
         let targetHours = 40.0
         return min(weekStats.totalHours / targetHours, 1.0)
     }
-    
+
     var body: some View {
         NavigationStack {
-            // NEU: VStack um List + Button zu kombinieren
             VStack(spacing: 0) {
-                // Die Liste (wie gehabt)
                 List {
                     // WeekStats (immer da)
                     Section {
@@ -93,7 +97,7 @@ struct ContentView: View {
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
                     }
-                    
+
                     // Empty State ODER Shift-Liste
                     if groupedShifts.isEmpty {
                         Section {
@@ -109,26 +113,26 @@ struct ContentView: View {
                                     } label: {
                                         ShiftRow(shift: shift)
                                     }
-                                }
-                                .onDelete { indexSet in
-                                    withAnimation {
-                                        deleteShifts(in: section.1, at: indexSet)
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button(role: .destructive) {
+                                            deleteShift(shift)
+                                        } label: {
+                                            Label("Löschen", systemImage: "trash")
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
-                
-                // NEU: Großer Action-Button am unteren Rand
+
+                // Großer Action-Button am unteren Rand
                 ActionButton(
                     isActive: activeShift != nil,
                     action: toggleShift
                 )
             }
-            // NEU: Personalisierte Toolbar
             .toolbar {
-               
                 ToolbarItem(placement: .principal) {
                     VStack(spacing: 2) {
                         Text("Schichtübersicht")
@@ -141,28 +145,27 @@ struct ContentView: View {
             }
         }
     }
-    
+
     private func toggleShift() {
         if activeShift == nil {
             let newShift = Shift(startTime: Date(), endTime: nil)
             modelContext.insert(newShift)
             try? modelContext.save()
-        } else {
-            activeShift!.endTime = Date()
+        } else if let current = activeShift {
+            current.endTime = Date()
             try? modelContext.save()
         }
     }
-    
-    private func deleteShifts(in shifts: [Shift], at offsets: IndexSet) {
-        for index in offsets {
-            modelContext.delete(shifts[index])
+
+    private func deleteShift(_ shift: Shift) {
+        withAnimation {
+            modelContext.delete(shift)
+            try? modelContext.save()
         }
-        try? modelContext.save()  // ← Das muss da sein!
     }
 }
 
 #Preview {
     ContentView()
 }
-
 
