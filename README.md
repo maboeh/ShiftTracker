@@ -45,7 +45,7 @@ Entwickelt mit SwiftUI und SwiftData für eine moderne, performante User Experie
 
 ## 🚀 Installation
 ```bash
-git clone https://github.com/[dein-username]/ShiftTracker.git
+git clone https://github.com/maboeh/ShiftTracker.git
 cd ShiftTracker
 open ShiftTracker.xcodeproj
 ```
