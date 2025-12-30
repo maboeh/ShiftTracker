@@ -83,6 +83,7 @@ struct ContentView: View {
             VStack(spacing: 0) {
                 // Die Liste (wie gehabt)
                 List {
+                    // WeekStats (immer da)
                     Section {
                         WeekStatsCard(
                             totalHours: weekStats.totalHours,
@@ -93,17 +94,27 @@ struct ContentView: View {
                         .listRowBackground(Color.clear)
                     }
                     
-                    ForEach(groupedShifts, id: \.0) { section in
-                        Section(section.0) {
-                            ForEach(section.1) { shift in
-                                NavigationLink {
-                                    ShiftDetailView(shift: shift)
-                                } label: {
-                                    ShiftRow(shift: shift)
+                    // Empty State ODER Shift-Liste
+                    if groupedShifts.isEmpty {
+                        Section {
+                            EmptyStateView()
+                                .transition(.opacity.combined(with: .scale))
+                        }
+                    } else {
+                        ForEach(groupedShifts, id: \.0) { section in
+                            Section(section.0) {
+                                ForEach(section.1) { shift in
+                                    NavigationLink {
+                                        ShiftDetailView(shift: shift)
+                                    } label: {
+                                        ShiftRow(shift: shift)
+                                    }
                                 }
-                            }
-                            .onDelete { indexSet in
-                                deleteShifts(in: section.1, at: indexSet)
+                                .onDelete { indexSet in
+                                    withAnimation {
+                                        deleteShifts(in: section.1, at: indexSet)
+                                    }
+                                }
                             }
                         }
                     }
@@ -117,10 +128,7 @@ struct ContentView: View {
             }
             // NEU: Personalisierte Toolbar
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    EditButton()
-                }
-                
+               
                 ToolbarItem(placement: .principal) {
                     VStack(spacing: 2) {
                         Text("Schichtübersicht")
@@ -134,15 +142,14 @@ struct ContentView: View {
         }
     }
     
-    // NEU: Ausgelagerte Toggle-Funktion (sauberer Code!)
     private func toggleShift() {
         if activeShift == nil {
-            // Neuen Shift erstellen
             let newShift = Shift(startTime: Date(), endTime: nil)
             modelContext.insert(newShift)
+            try? modelContext.save()
         } else {
-            // Aktiven Shift beenden
             activeShift!.endTime = Date()
+            try? modelContext.save()
         }
     }
     
@@ -150,6 +157,7 @@ struct ContentView: View {
         for index in offsets {
             modelContext.delete(shifts[index])
         }
+        try? modelContext.save()  // ← Das muss da sein!
     }
 }
 
