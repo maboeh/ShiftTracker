@@ -31,12 +31,12 @@ struct ShiftDetailView: View {
     
     var body: some View {
         Form {
-            Section("Zeiten") {
-                DatePicker("Start",
+            Section(AppStrings.zeiten) {
+                DatePicker(AppStrings.start,
                           selection: $shift.startTime,
                           displayedComponents: [.date, .hourAndMinute])
-                
-                Toggle("Shift läuft noch", isOn: $isActive)
+
+                Toggle(AppStrings.shiftLaueftNoch, isOn: $isActive)
                     .onChange(of: isActive) { oldValue, newValue in
                         if newValue {
                             shift.endTime = nil
@@ -46,7 +46,7 @@ struct ShiftDetailView: View {
                     }
                 
                 if !isActive {
-                    DatePicker("Ende",
+                    DatePicker(AppStrings.ende,
                               selection: Binding(
                                   get: { shift.endTime ?? Date() },
                                   set: { shift.endTime = $0 }
@@ -54,7 +54,7 @@ struct ShiftDetailView: View {
                               displayedComponents: [.date, .hourAndMinute])
                     
                     if isEndBeforeStart {
-                        Text("⚠️ Ende liegt vor Start")
+                        Text(AppStrings.endeLiegtVorStart)
                             .foregroundStyle(.red)
                             .font(.caption)
                     }
@@ -62,9 +62,9 @@ struct ShiftDetailView: View {
             }
             
             // NEU: Shift Type Section
-            Section("Schicht-Art") {
-                Picker("Type", selection: $shift.shiftType) {
-                    Text("Keine Auswahl")
+            Section(AppStrings.schichtArt) {
+                Picker(AppStrings.schichtArt, selection: $shift.shiftType) {
+                    Text(AppStrings.keineAuswahl)
                         .tag(nil as ShiftType?)
                     
                     ForEach(shiftTypes) { type in
@@ -79,38 +79,110 @@ struct ShiftDetailView: View {
                 }
             }
             
-            Section("Info") {
-                LabeledContent("Dauer") {
+            Section(AppStrings.pausen) {
+                BreakListView(shift: shift)
+
+                Button {
+                    addBreak()
+                } label: {
+                    Label(AppStrings.pauseHinzufuegen, systemImage: "plus.circle")
+                }
+            }
+
+            Section(AppStrings.info) {
+                LabeledContent(AppStrings.bruttoDauer) {
                     if isEndBeforeStart {
-                        Text("Ungültig")
+                        Text(AppStrings.ungueltig)
                             .foregroundStyle(.red)
                             .fontWeight(.semibold)
                     } else {
-                        Text(String(format: "%.1f Stunden", shift.duration / 3600))
+                        Text(String(format: "%.1f %@", shift.duration / 3600, AppStrings.stunden))
                             .foregroundStyle(.primary)
+                    }
+                }
+
+                if shift.totalBreakDuration > 0 {
+                    LabeledContent(AppStrings.pausenzeit) {
+                        Text(String(format: "%.0f Min.", shift.totalBreakDuration / 60))
+                            .foregroundStyle(.orange)
+                    }
+
+                    LabeledContent(AppStrings.nettoDauer) {
+                        Text(String(format: "%.1f %@", shift.netDuration / 3600, AppStrings.stunden))
+                            .foregroundStyle(.green)
+                            .fontWeight(.semibold)
                     }
                 }
             }
             
+            // Pausen-Compliance (ArbZG §4)
+            if let complianceWarning = breakComplianceWarning {
+                Section {
+                    Text(complianceWarning)
+                        .foregroundStyle(.orange)
+                        .font(.caption)
+                }
+            }
+
             Section {
                 Button(role: .destructive) {
                     modelContext.delete(shift)
-                    dismiss()
+                    do {
+                        try modelContext.save()
+                        withAnimation { dismiss() }
+                    } catch {
+                        modelContext.rollback()
+                        ErrorHandler.shared.handle(error)
+                    }
                 } label: {
-                    Label("Shift löschen", systemImage: "trash")
+                    Label(AppStrings.schichtLoeschen, systemImage: "trash")
                         .frame(maxWidth: .infinity)
                 }
+                .accessibilityHint(AppStrings.hintSchichtLoeschen)
             }
         }
-        .navigationTitle("Shift bearbeiten")
+        .navigationTitle(AppStrings.schichtBearbeiten)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .confirmationAction) {
-                Button("Fertig") {
+                Button(AppStrings.fertig) {
+                    do {
+                        try modelContext.save()
+                    } catch {
+                        ErrorHandler.shared.handle(error)
+                    }
                     dismiss()
                 }
-                .disabled(isEndBeforeStart)  // NEU: Deaktiviert wenn ungültig!
+                .disabled(isEndBeforeStart)
             }
         }
+    }
+
+    // MARK: - Break Management
+
+    private func addBreak() {
+        let newBreak = Break(startTime: Date())
+        newBreak.shift = shift
+        modelContext.insert(newBreak)
+        do {
+            try modelContext.save()
+        } catch {
+            modelContext.rollback()
+            ErrorHandler.shared.handle(error)
+        }
+    }
+
+    // MARK: - Pausen-Compliance (ArbZG §4)
+
+    private var breakComplianceWarning: String? {
+        let bruttoHours = shift.duration / 3600
+        let totalBreakMinutes = shift.totalBreakDuration / 60
+
+        if bruttoHours > 9 && totalBreakMinutes < 45 {
+            return AppStrings.pauseWarnung9h
+        } else if bruttoHours > 6 && totalBreakMinutes < 30 {
+            return AppStrings.pauseWarnung6h
+        }
+        return nil
     }
 }

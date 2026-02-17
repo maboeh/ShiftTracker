@@ -8,15 +8,22 @@
 import SwiftUI
 import SwiftData
 
+let weeklyTargetHours = AppConfiguration.standardWeeklyHours
+
 struct ContentView: View {
     @Query(sort: \Shift.startTime, order: .reverse) var shifts: [Shift]
     @Environment(\.modelContext) private var modelContext
+    @State private var showExportSheet = false
 
     var activeShift: Shift? {
         shifts.first(where: { $0.endTime == nil })
     }
 
-    // Gruppierte Shifts
+    private var shiftState: ShiftState {
+        guard let active = activeShift else { return .inactive }
+        return active.hasActiveBreak ? .onBreak : .active
+    }
+
     private var groupedShifts: [(String, [Shift])] {
         let calendar = Calendar.current
         let now = Date()
@@ -39,55 +46,46 @@ struct ContentView: View {
         }
 
         var result: [(String, [Shift])] = []
-        if !heute.isEmpty { result.append(("Heute", heute)) }
-        if !gestern.isEmpty { result.append(("Gestern", gestern)) }
-        if !dieseWoche.isEmpty { result.append(("Diese Woche", dieseWoche)) }
-        if !aelter.isEmpty { result.append(("Älter", aelter)) }
+        if !heute.isEmpty { result.append((AppStrings.heute, heute)) }
+        if !gestern.isEmpty { result.append((AppStrings.gestern, gestern)) }
+        if !dieseWoche.isEmpty { result.append((AppStrings.dieseWoche, dieseWoche)) }
+        if !aelter.isEmpty { result.append((AppStrings.aelter, aelter)) }
 
         return result
     }
 
     private var weekStats: (totalHours: Double, overtime: Double) {
         var calendar = Calendar.current
-        calendar.firstWeekday = 2  // 2 = Montag (1 = Sonntag)
-        
+        calendar.firstWeekday = 2
+
         let now = Date()
-        
-        // Montag dieser Woche (00:00 Uhr)
-        guard let mondayStart = calendar.dateInterval(of: .weekOfYear, for: now)?.start else {
+
+        guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: now) else {
             return (0, 0)
         }
-        
-        // Sonntag 00:00 = Ende von Samstag für Filter
-        guard let sundayStart = calendar.date(byAdding: .day, value: 6, to: mondayStart) else {
-            return (0, 0)
-        }
-        
-        // Shifts zwischen Montag und Samstag
+
         let thisWeekShifts = shifts.filter { shift in
-            shift.startTime >= mondayStart && shift.startTime < sundayStart
+            shift.startTime >= weekInterval.start && shift.startTime < weekInterval.end
         }
         
         let totalSeconds = thisWeekShifts.reduce(0.0) { sum, shift in
-            sum + shift.duration
+            sum + shift.netDuration
         }
         let totalHours = totalSeconds / 3600
-        let targetHours = 40.0
-        let overtime = totalHours - targetHours
+        let overtime = totalHours - weeklyTargetHours
         
         return (totalHours, overtime)
     }
 
     private var weekProgress: Double {
-        let targetHours = 40.0
-        return min(weekStats.totalHours / targetHours, 1.0)
+        guard weeklyTargetHours > 0 else { return 0 }
+        return min(weekStats.totalHours / weeklyTargetHours, 1.0)
     }
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 List {
-                    // WeekStats (immer da)
                     Section {
                         WeekStatsCard(
                             totalHours: weekStats.totalHours,
@@ -98,7 +96,6 @@ struct ContentView: View {
                         .listRowBackground(Color.clear)
                     }
 
-                    // Empty State ODER Shift-Liste
                     if groupedShifts.isEmpty {
                         Section {
                             EmptyStateView()
@@ -117,7 +114,7 @@ struct ContentView: View {
                                         Button(role: .destructive) {
                                             deleteShift(shift)
                                         } label: {
-                                            Label("Löschen", systemImage: "trash")
+                                            Label(AppStrings.loeschen, systemImage: "trash")
                                         }
                                     }
                                 }
@@ -126,23 +123,45 @@ struct ContentView: View {
                     }
                 }
 
-                // Großer Action-Button am unteren Rand
                 ActionButton(
-                    isActive: activeShift != nil,
-                    action: toggleShift
+                    state: shiftState,
+                    onToggleShift: toggleShift,
+                    onToggleBreak: toggleBreak
                 )
             }
             .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    HStack(spacing: 16) {
+                        NavigationLink {
+                            SecuritySettingsView()
+                        } label: {
+                            Image(systemName: "lock.shield")
+                        }
+
+                        Button {
+                            showExportSheet = true
+                        } label: {
+                            Image(systemName: "square.and.arrow.up")
+                        }
+                        .accessibilityLabel(AppStrings.exportTitle)
+                        .accessibilityHint(AppStrings.hintExportOeffnen)
+                    }
+                }
+
                 ToolbarItem(placement: .principal) {
                     VStack(spacing: 2) {
-                        Text("Schichtübersicht")
+                        Text(AppStrings.shiftOverview)
                             .font(.headline)
-                        Text("Willkommen zurück, Matthias")
+                        Text("\(AppStrings.welcomeBack)!")
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
                 }
             }
+            .sheet(isPresented: $showExportSheet) {
+                ExportView()
+            }
+            .errorAlert()
         }
     }
 
@@ -150,17 +169,56 @@ struct ContentView: View {
         if activeShift == nil {
             let newShift = Shift(startTime: Date(), endTime: nil)
             modelContext.insert(newShift)
-            try? modelContext.save()
+            do {
+                try modelContext.save()
+            } catch {
+                modelContext.rollback()
+                ErrorHandler.shared.handle(error)
+            }
         } else if let current = activeShift {
+            // Aktive Pause beenden bevor Schicht gestoppt wird
+            if let activeBreak = (current.breaks ?? []).first(where: { $0.isActive }) {
+                activeBreak.endTime = Date()
+            }
             current.endTime = Date()
-            try? modelContext.save()
+            do {
+                try modelContext.save()
+            } catch {
+                modelContext.rollback()
+                ErrorHandler.shared.handle(error)
+            }
+        }
+    }
+
+    private func toggleBreak() {
+        guard let current = activeShift else { return }
+
+        if let activeBreak = (current.breaks ?? []).first(where: { $0.isActive }) {
+            activeBreak.endTime = Date()
+        } else {
+            let newBreak = Break(startTime: Date())
+            newBreak.shift = current
+            modelContext.insert(newBreak)
+        }
+
+        do {
+            try modelContext.save()
+        } catch {
+            modelContext.rollback()
+            ErrorHandler.shared.handle(error)
         }
     }
 
     private func deleteShift(_ shift: Shift) {
         withAnimation {
             modelContext.delete(shift)
-            try? modelContext.save()
+            do {
+                try modelContext.save()
+                HapticFeedback.lightImpact()
+            } catch {
+                modelContext.rollback()
+                ErrorHandler.shared.handle(error)
+            }
         }
     }
 }
@@ -168,4 +226,3 @@ struct ContentView: View {
 #Preview {
     ContentView()
 }
-

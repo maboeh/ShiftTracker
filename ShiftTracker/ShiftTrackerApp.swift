@@ -9,31 +9,47 @@ import SwiftData
 
 @main
 struct ShiftTrackerApp: App {
+    @State private var authManager = AuthManager.shared
+    @Environment(\.scenePhase) private var scenePhase
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ZStack {
+                ContentView()
+
+                if authManager.isLocked {
+                    AuthView()
+                        .transition(.opacity)
+                }
+            }
+            .animation(.easeInOut(duration: 0.3), value: authManager.isLocked)
+            .onChange(of: scenePhase) { _, newPhase in
+                if newPhase == .background {
+                    authManager.lock()
+                }
+            }
         }
-        .modelContainer(for: [Shift.self, ShiftType.self]) { result in
-            // Diese Closure läuft beim ersten Start
+        .modelContainer(for: [Shift.self, ShiftType.self, Break.self]) { result in
             do {
                 let container = try result.get()
-                
-                // Prüfen ob schon Shift Types existieren
+
                 let descriptor = FetchDescriptor<ShiftType>()
                 let existingTypes = try container.mainContext.fetch(descriptor)
-                
-                // Nur erstellen wenn noch keine da sind
+
                 if existingTypes.isEmpty {
-                    let frueh = ShiftType(name: "Frühschicht", colorHex: "#007AFF")  // Blau
-                    let spaet = ShiftType(name: "Spätschicht", colorHex: "#FF9500")  // Orange
-                    let nacht = ShiftType(name: "Nachtschicht", colorHex: "#AF52DE") // Lila
-                    
+                    let frueh = ShiftType(name: "Frühschicht", colorHex: "#007AFF")
+                    let spaet = ShiftType(name: "Spätschicht", colorHex: "#FF9500")
+                    let nacht = ShiftType(name: "Nachtschicht", colorHex: "#AF52DE")
+
                     container.mainContext.insert(frueh)
                     container.mainContext.insert(spaet)
                     container.mainContext.insert(nacht)
+                    try container.mainContext.save()
                 }
             } catch {
-                print("Failed to create default shift types: \(error)")
+                ErrorHandler.shared.handle(
+                    ShiftTrackerError.databaseError(error.localizedDescription)
+                )
             }
         }
     }

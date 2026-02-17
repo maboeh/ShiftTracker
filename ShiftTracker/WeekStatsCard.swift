@@ -11,55 +11,60 @@ struct WeekStatsCard: View {
     let totalHours: Double
     let overtime: Double
     let progress: Double
+    let targetHours: Double = AppConfiguration.standardWeeklyHours
+    
+    private var accessibilityDescription: String {
+        let hoursText = String(format: "%.1f", totalHours)
+        if overtime > 0 {
+            return "\(AppStrings.dieseWoche): \(hoursText) \(AppStrings.std). \(AppStrings.ueberstunden): +\(String(format: "%.1f", overtime)) \(AppStrings.std)"
+        } else {
+            let remaining = targetHours - totalHours
+            return "\(AppStrings.dieseWoche): \(hoursText) \(AppStrings.std). \(AppStrings.nochBis) \(Int(targetHours))h: \(String(format: "%.1f", remaining)) \(AppStrings.std)"
+        }
+    }
     
     var body: some View {
         VStack(spacing: 12) {
-            // Header
             HStack {
-                Text("Diese Woche")
+                Text(AppStrings.dieseWoche)
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Text(String(format: "%.1f Std", totalHours))
+                Text(String(format: "%.1f \(AppStrings.std)", totalHours))
                     .font(.title2)
                     .fontWeight(.bold)
                     .foregroundStyle(.green)
             }
             
-            // Fortschrittsbalken
             GeometryReader { geometry in
                 ZStack(alignment: .leading) {
-                    // Hintergrund (grau)
                     RoundedRectangle(cornerRadius: 4)
                         .fill(Color.gray.opacity(0.2))
                     
-                    // Fortschritt (grün)
                     RoundedRectangle(cornerRadius: 4)
                         .fill(Color.green)
                         .frame(width: geometry.size.width * progress)
                 }
             }
             .frame(height: 8)
+            .accessibilityHidden(true)
             
-            // Überstunden
             HStack {
                 if overtime > 0 {
-                    // NUR wenn tatsächlich Überstunden
-                    Text("Überstunden")
+                    Text(AppStrings.ueberstunden)
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text(String(format: "+%.1f Std", overtime))
+                    Text(String(format: "+%.1f \(AppStrings.std)", overtime))
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundStyle(.green)
                 } else {
-                    // Unter 40h: Zeige Fortschritt zum Ziel
-                    Text("Noch bis 40h")
+                    Text("\(AppStrings.nochBis) \(Int(targetHours))h")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Text(String(format: "%.1f Std", 40.0 - totalHours))
+                    Text(String(format: "%.1f \(AppStrings.std)", targetHours - totalHours))
                         .font(.caption)
                         .fontWeight(.semibold)
                         .foregroundStyle(.orange)
@@ -69,5 +74,7 @@ struct WeekStatsCard: View {
         .padding()
         .background(Color(.secondarySystemGroupedBackground))
         .cornerRadius(12)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(accessibilityDescription)
     }
 }
