@@ -122,6 +122,26 @@ struct AppStrings {
     static let gesperrt = "Gesperrt"
     static let pauseAusserhalbSchicht = "Pause liegt außerhalb der Schichtzeit"
 
+    // MARK: - Settings
+    static let einstellungen = "Einstellungen"
+    static let arbeitszeit = "Arbeitszeit"
+    static let wochenStunden = "Wochenstunden"
+    static let wochenStundenInfo = "Ziel-Wochenstunden für die Überstundenberechnung"
+    static let verwaltung = "Verwaltung"
+    static let schichttypen = "Schichttypen"
+    static let ueberApp = "Über die App"
+    static let version = "Version"
+    static let schichttypBearbeiten = "Schichttyp bearbeiten"
+    static let neuerSchichttyp = "Neuer Schichttyp"
+    static let name = "Name"
+    static let farbe = "Farbe"
+    static let keineSchichttypen = "Keine Schichttypen"
+    static let schichttypHinzufuegen = "Schichttyp hinzufügen"
+    static let zugewieseneSchichten = "Zugewiesene Schichten"
+    static let speichern = "Speichern"
+    static let schichttypLoeschen = "Schichttyp löschen"
+    static let schichttypLoeschenInfo = "Zugewiesene Schichten werden auf 'Keine Auswahl' gesetzt."
+
     // MARK: - Errors
     static let errorTitle = "Fehler"
     static let exportFailed = "Export fehlgeschlagen"

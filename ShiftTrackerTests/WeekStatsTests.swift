@@ -42,7 +42,7 @@ final class WeekStatsTests: XCTestCase {
     
     func testOvertimeCalculation() {
         let totalHours = 45.0
-        let targetHours = AppConfiguration.standardWeeklyHours
+        let targetHours = AppConfiguration.defaultWeeklyHours
         let overtime = totalHours - targetHours
         
         XCTAssertEqual(overtime, 5.0, accuracy: 0.001, "Overtime should be 5 hours")
@@ -50,7 +50,7 @@ final class WeekStatsTests: XCTestCase {
     
     func testNoOvertimeWhenUnderTarget() {
         let totalHours = 35.0
-        let targetHours = AppConfiguration.standardWeeklyHours
+        let targetHours = AppConfiguration.defaultWeeklyHours
         let overtime = totalHours - targetHours
         
         XCTAssertLessThan(overtime, 0, "Overtime should be negative when under target")
@@ -60,7 +60,7 @@ final class WeekStatsTests: XCTestCase {
     
     func testWeekProgressAtZero() {
         let totalHours = 0.0
-        let targetHours = AppConfiguration.standardWeeklyHours
+        let targetHours = AppConfiguration.defaultWeeklyHours
         let progress = min(totalHours / targetHours, 1.0)
         
         XCTAssertEqual(progress, 0.0, accuracy: 0.001, "Progress should be 0 when no hours worked")
@@ -68,7 +68,7 @@ final class WeekStatsTests: XCTestCase {
     
     func testWeekProgressAt50Percent() {
         let totalHours = 20.0
-        let targetHours = AppConfiguration.standardWeeklyHours
+        let targetHours = AppConfiguration.defaultWeeklyHours
         let progress = min(totalHours / targetHours, 1.0)
         
         XCTAssertEqual(progress, 0.5, accuracy: 0.001, "Progress should be 0.5 at 20 hours")
@@ -76,7 +76,7 @@ final class WeekStatsTests: XCTestCase {
     
     func testWeekProgressAt100Percent() {
         let totalHours = 40.0
-        let targetHours = AppConfiguration.standardWeeklyHours
+        let targetHours = AppConfiguration.defaultWeeklyHours
         let progress = min(totalHours / targetHours, 1.0)
         
         XCTAssertEqual(progress, 1.0, accuracy: 0.001, "Progress should be 1.0 at 40 hours")
@@ -84,7 +84,7 @@ final class WeekStatsTests: XCTestCase {
     
     func testWeekProgressCappedAt100Percent() {
         let totalHours = 50.0
-        let targetHours = AppConfiguration.standardWeeklyHours
+        let targetHours = AppConfiguration.defaultWeeklyHours
         let progress = min(totalHours / targetHours, 1.0)
         
         XCTAssertEqual(progress, 1.0, accuracy: 0.001, "Progress should be capped at 1.0")

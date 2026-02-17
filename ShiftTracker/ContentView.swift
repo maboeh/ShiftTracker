@@ -8,11 +8,10 @@
 import SwiftUI
 import SwiftData
 
-let weeklyTargetHours = AppConfiguration.standardWeeklyHours
-
 struct ContentView: View {
     @Query(sort: \Shift.startTime, order: .reverse) var shifts: [Shift]
     @Environment(\.modelContext) private var modelContext
+    @AppStorage(AppConfiguration.weeklyHoursKey) private var weeklyTargetHours = AppConfiguration.defaultWeeklyHours
     @State private var showExportSheet = false
 
     var activeShift: Shift? {
@@ -90,7 +89,8 @@ struct ContentView: View {
                         WeekStatsCard(
                             totalHours: weekStats.totalHours,
                             overtime: weekStats.overtime,
-                            progress: weekProgress
+                            progress: weekProgress,
+                            targetHours: weeklyTargetHours
                         )
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
@@ -133,10 +133,11 @@ struct ContentView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     HStack(spacing: 16) {
                         NavigationLink {
-                            SecuritySettingsView()
+                            SettingsView()
                         } label: {
-                            Image(systemName: "lock.shield")
+                            Image(systemName: "gearshape")
                         }
+                        .accessibilityLabel(AppStrings.einstellungen)
 
                         Button {
                             showExportSheet = true

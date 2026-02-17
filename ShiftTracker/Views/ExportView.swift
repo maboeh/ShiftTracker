@@ -148,7 +148,7 @@ struct ExportView: View {
         let filteredShifts = ExportValidator.filterShifts(allShifts, dateRange: options.dateRange)
         let totalHours = filteredShifts.reduce(0.0) { $0 + $1.netDuration / 3600 }
         let weeks = max(options.dateRange.duration / (7 * 86400), 1)
-        let targetForRange = AppConfiguration.standardWeeklyHours * weeks
+        let targetForRange = AppConfiguration.weeklyTargetHours * weeks
         let overtime = totalHours - targetForRange
 
         switch selectedDateRange {

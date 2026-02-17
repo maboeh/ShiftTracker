@@ -11,7 +11,7 @@ struct WeekStatsCard: View {
     let totalHours: Double
     let overtime: Double
     let progress: Double
-    let targetHours: Double = AppConfiguration.standardWeeklyHours
+    let targetHours: Double
     
     private var accessibilityDescription: String {
         let hoursText = String(format: "%.1f", totalHours)

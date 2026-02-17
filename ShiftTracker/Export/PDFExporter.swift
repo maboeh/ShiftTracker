@@ -231,7 +231,7 @@ class PDFExporter {
         let totalBreakMinutes = shifts.reduce(0.0) { $0 + $1.totalBreakDuration / 60 }
         let completedShifts = shifts.filter { $0.endTime != nil }.count
         let weeks = max(dateRange.duration / (7 * 86400), 1)
-        let targetForRange = AppConfiguration.standardWeeklyHours * weeks
+        let targetForRange = AppConfiguration.weeklyTargetHours * weeks
         let overtime = totalHours - targetForRange
 
         "Anzahl Schichten: \(shifts.count) (\(completedShifts) abgeschlossen)".draw(
