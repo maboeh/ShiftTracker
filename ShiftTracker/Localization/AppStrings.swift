@@ -255,6 +255,18 @@ struct AppStrings {
     static let standardLohn = "Standard"
     static let aufschluesselungNachTyp = "Nach Schichttyp"
 
+    // MARK: - Widgets
+    static let widgetArbeite = "Arbeite..."
+    static let widgetInPause = "In Pause"
+    static let widgetKeineSchicht = "Keine Schicht"
+    static let widgetEinstempeln = "Start"
+    static let widgetAusstempeln = "Ende"
+    static let widgetPause = "Pause"
+    static let widgetWeiter = "Weiter"
+    static let widgetSchichtStatus = "Schicht Status"
+    static let widgetSchichtSteuerung = "Schicht Steuerung"
+    static let widgetSperrbildschirm = "Schicht (Sperrbildschirm)"
+
     // MARK: - Errors
     static let errorTitle = "Fehler"
     static let exportFailed = "Export fehlgeschlagen"

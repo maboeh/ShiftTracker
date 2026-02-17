@@ -14,22 +14,74 @@
 			remoteGlobalIDString = 4173CD072EEF2DD5005CA233;
 			remoteInfo = ShiftTracker;
 		};
+		41WD00012F0350000000000B /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4173CD002EEF2DD5005CA233 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 41WD00012F03500000000006;
+			remoteInfo = ShiftTrackerWidgetExtension;
+		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		41WD00012F0350000000000A /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		4173CD082EEF2DD5005CA233 /* ShiftTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ShiftTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4190CD022F00123400000003 /* ShiftTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = ShiftTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		41WD00012F03500000000001 /* ShiftTrackerWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ShiftTrackerWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		41WD00012F0350000000000D /* Exceptions for "ShiftTracker" folder in "ShiftTrackerWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Break.swift,
+				Configuration/AppConfiguration.swift,
+				Export/ExportRecord.swift,
+				Intents/EndShiftIntent.swift,
+				Intents/StartShiftIntent.swift,
+				Intents/ToggleBreakIntent.swift,
+				LiveActivity/LiveActivityManager.swift,
+				LiveActivity/ShiftActivityAttributes.swift,
+				Services/ModelContainerProvider.swift,
+				Services/ShiftService.swift,
+				Shift.swift,
+				ShiftState.swift,
+				ShiftTemplate.swift,
+				ShiftType.swift,
+			);
+			target = 41WD00012F03500000000006 /* ShiftTrackerWidgetExtension */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		4173CD0A2EEF2DD5005CA233 /* ShiftTracker */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				41WD00012F0350000000000D /* Exceptions for "ShiftTracker" folder in "ShiftTrackerWidgetExtension" target */,
+			);
 			path = ShiftTracker;
 			sourceTree = "<group>";
 		};
 		4190CD032F00123400000004 /* ShiftTrackerTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = ShiftTrackerTests;
+			sourceTree = "<group>";
+		};
+		41WD00012F03500000000002 /* ShiftTrackerWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = ShiftTrackerWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -49,6 +101,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		41WD00012F03500000000004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -56,6 +115,7 @@
 			isa = PBXGroup;
 			children = (
 				4173CD0A2EEF2DD5005CA233 /* ShiftTracker */,
+				41WD00012F03500000000002 /* ShiftTrackerWidget */,
 				4190CD032F00123400000004 /* ShiftTrackerTests */,
 				4173CD092EEF2DD5005CA233 /* Products */,
 			);
@@ -65,6 +125,7 @@
 			isa = PBXGroup;
 			children = (
 				4173CD082EEF2DD5005CA233 /* ShiftTracker.app */,
+				41WD00012F03500000000001 /* ShiftTrackerWidgetExtension.appex */,
 				4190CD022F00123400000003 /* ShiftTrackerTests.xctest */,
 			);
 			name = Products;
@@ -80,10 +141,12 @@
 				4173CD042EEF2DD5005CA233 /* Sources */,
 				4173CD052EEF2DD5005CA233 /* Frameworks */,
 				4173CD062EEF2DD5005CA233 /* Resources */,
+				41WD00012F0350000000000A /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				41WD00012F0350000000000C /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				4173CD0A2EEF2DD5005CA233 /* ShiftTracker */,
@@ -118,6 +181,28 @@
 			productReference = 4190CD022F00123400000003 /* ShiftTrackerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		41WD00012F03500000000006 /* ShiftTrackerWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 41WD00012F03500000000009 /* Build configuration list for PBXNativeTarget "ShiftTrackerWidgetExtension" */;
+			buildPhases = (
+				41WD00012F03500000000003 /* Sources */,
+				41WD00012F03500000000004 /* Frameworks */,
+				41WD00012F03500000000005 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				41WD00012F03500000000002 /* ShiftTrackerWidget */,
+			);
+			name = ShiftTrackerWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = ShiftTrackerWidgetExtension;
+			productReference = 41WD00012F03500000000001 /* ShiftTrackerWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -134,6 +219,9 @@
 					4190CD052F00123400000006 = {
 						CreatedOnToolsVersion = 26.2;
 						TestTargetID = 4173CD072EEF2DD5005CA233;
+					};
+					41WD00012F03500000000006 = {
+						CreatedOnToolsVersion = 26.2;
 					};
 				};
 			};
@@ -152,6 +240,7 @@
 			projectRoot = "";
 			targets = (
 				4173CD072EEF2DD5005CA233 /* ShiftTracker */,
+				41WD00012F03500000000006 /* ShiftTrackerWidgetExtension */,
 				4190CD052F00123400000006 /* ShiftTrackerTests */,
 			);
 		};
@@ -166,6 +255,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		4190CD082F00123400000009 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41WD00012F03500000000005 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -189,6 +285,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		41WD00012F03500000000003 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -196,6 +299,11 @@
 			isa = PBXTargetDependency;
 			target = 4173CD072EEF2DD5005CA233 /* ShiftTracker */;
 			targetProxy = 4190CD002F00123400000001 /* PBXContainerItemProxy */;
+		};
+		41WD00012F0350000000000C /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 41WD00012F03500000000006 /* ShiftTrackerWidgetExtension */;
+			targetProxy = 41WD00012F0350000000000B /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -326,12 +434,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ShiftTracker/ShiftTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = HVSAL54YCA;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "ShiftTracker verwendet Face ID um deine Daten zu schützen.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -360,12 +470,14 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = ShiftTracker/ShiftTracker.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = HVSAL54YCA;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_NSFaceIDUsageDescription = "ShiftTracker verwendet Face ID um deine Daten zu schützen.";
+				INFOPLIST_KEY_NSSupportsLiveActivities = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
@@ -429,6 +541,62 @@
 			};
 			name = Release;
 		};
+		41WD00012F03500000000007 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShiftTrackerWidget/ShiftTrackerWidgetEntitlements.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HVSAL54YCA;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = ShiftTrackerWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = maboeh.com.ShiftTracker.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		41WD00012F03500000000008 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = ShiftTrackerWidget/ShiftTrackerWidgetEntitlements.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = HVSAL54YCA;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = ShiftTrackerWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.6;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_BUNDLE_IDENTIFIER = maboeh.com.ShiftTracker.widget;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -455,6 +623,15 @@
 			buildConfigurations = (
 				4190CD092F0012340000000A /* Debug */,
 				4190CD0A2F0012340000000B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		41WD00012F03500000000009 /* Build configuration list for PBXNativeTarget "ShiftTrackerWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41WD00012F03500000000007 /* Debug */,
+				41WD00012F03500000000008 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -7,12 +7,6 @@
 
 import SwiftUI
 
-enum ShiftState {
-    case inactive
-    case active
-    case onBreak
-}
-
 struct ActionButton: View {
     let state: ShiftState
     let onToggleShift: () -> Void

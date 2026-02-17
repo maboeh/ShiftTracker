@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import WidgetKit
 
 struct ContentView: View {
     @Query(sort: \Shift.startTime, order: .reverse) var shifts: [Shift]
@@ -194,78 +195,60 @@ struct ContentView: View {
         }
     }
 
+    private var shiftService: ShiftService {
+        ShiftService(modelContext: modelContext)
+    }
+
     private func toggleShift() {
-        if activeShift == nil {
-            let newShift = Shift(startTime: Date(), endTime: nil)
-            modelContext.insert(newShift)
-            do {
-                try modelContext.save()
+        do {
+            if activeShift == nil {
+                try shiftService.startShift()
                 NotificationManager.shared.onShiftStarted()
-            } catch {
-                modelContext.rollback()
-                ErrorHandler.shared.handle(error)
-            }
-        } else if let current = activeShift {
-            if let activeBreak = (current.breaks ?? []).first(where: { $0.isActive }) {
-                activeBreak.endTime = Date()
-            }
-            current.endTime = Date()
-            do {
-                try modelContext.save()
+            } else {
+                try shiftService.endShift()
                 NotificationManager.shared.onShiftEnded()
-            } catch {
-                modelContext.rollback()
-                ErrorHandler.shared.handle(error)
             }
+        } catch {
+            ErrorHandler.shared.handle(error)
         }
     }
 
     private func toggleBreak() {
         guard let current = activeShift else { return }
-
-        let isEndingBreak = (current.breaks ?? []).contains { $0.isActive }
-
-        if let activeBreak = (current.breaks ?? []).first(where: { $0.isActive }) {
-            activeBreak.endTime = Date()
-        } else {
-            let newBreak = Break(startTime: Date())
-            newBreak.shift = current
-            modelContext.insert(newBreak)
-        }
-
+        let isEndingBreak = current.hasActiveBreak
         do {
-            try modelContext.save()
             if isEndingBreak {
+                try shiftService.endBreak()
                 NotificationManager.shared.onBreakEnded(netWorkDurationSoFar: current.netDuration)
             } else {
+                try shiftService.startBreak()
                 NotificationManager.shared.onBreakStarted()
             }
         } catch {
-            modelContext.rollback()
             ErrorHandler.shared.handle(error)
         }
     }
 
     private func startShiftFromTemplate(_ template: ShiftTemplate) {
-        guard activeShift == nil else { return }
-        let newShift = Shift(startTime: Date(), endTime: nil)
-        newShift.shiftType = template.shiftType
-        modelContext.insert(newShift)
         do {
-            try modelContext.save()
+            try shiftService.startShift(shiftType: template.shiftType)
             NotificationManager.shared.onShiftStarted()
         } catch {
-            modelContext.rollback()
             ErrorHandler.shared.handle(error)
         }
     }
 
     private func deleteShift(_ shift: Shift) {
+        let wasActive = shift.endTime == nil
         withAnimation {
             modelContext.delete(shift)
             do {
                 try modelContext.save()
                 HapticFeedback.lightImpact()
+                if wasActive {
+                    WidgetCenter.shared.reloadAllTimelines()
+                    LiveActivityManager.shared.endActivity()
+                }
             } catch {
                 modelContext.rollback()
                 ErrorHandler.shared.handle(error)

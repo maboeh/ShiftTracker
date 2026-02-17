@@ -44,28 +44,6 @@ struct ShiftTrackerApp: App {
                 await NotificationManager.shared.checkAuthorization()
             }
         }
-        .modelContainer(for: [Shift.self, ShiftType.self, Break.self, ShiftTemplate.self, ExportRecord.self]) { result in
-            do {
-                let container = try result.get()
-
-                let descriptor = FetchDescriptor<ShiftType>()
-                let existingTypes = try container.mainContext.fetch(descriptor)
-
-                if existingTypes.isEmpty {
-                    let frueh = ShiftType(name: "Frühschicht", colorHex: "#007AFF")
-                    let spaet = ShiftType(name: "Spätschicht", colorHex: "#FF9500")
-                    let nacht = ShiftType(name: "Nachtschicht", colorHex: "#AF52DE")
-
-                    container.mainContext.insert(frueh)
-                    container.mainContext.insert(spaet)
-                    container.mainContext.insert(nacht)
-                    try container.mainContext.save()
-                }
-            } catch {
-                ErrorHandler.shared.handle(
-                    ShiftTrackerError.databaseError(error.localizedDescription)
-                )
-            }
-        }
+        .modelContainer(ModelContainerProvider.shared)
     }
 }
