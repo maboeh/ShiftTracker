@@ -11,22 +11,32 @@ import SwiftData
 struct ShiftTrackerApp: App {
     @State private var authManager = AuthManager.shared
     @Environment(\.scenePhase) private var scenePhase
+    @AppStorage("isOnboardingComplete") private var isOnboardingComplete = false
 
     var body: some Scene {
         WindowGroup {
             ZStack {
-                ContentView()
+                if isOnboardingComplete {
+                    ContentView()
+                } else {
+                    OnboardingView(isComplete: $isOnboardingComplete)
+                        .transition(.opacity)
+                }
 
-                if authManager.isLocked {
+                if authManager.isLocked && isOnboardingComplete {
                     AuthView()
                         .transition(.opacity)
                 }
             }
             .animation(.easeInOut(duration: 0.3), value: authManager.isLocked)
+            .animation(.easeInOut(duration: 0.3), value: isOnboardingComplete)
             .onChange(of: scenePhase) { _, newPhase in
                 if newPhase == .background {
                     authManager.lock()
                 }
+            }
+            .task {
+                await NotificationManager.shared.checkAuthorization()
             }
         }
         .modelContainer(for: [Shift.self, ShiftType.self, Break.self]) { result in

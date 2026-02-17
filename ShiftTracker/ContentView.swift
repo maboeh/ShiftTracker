@@ -172,18 +172,19 @@ struct ContentView: View {
             modelContext.insert(newShift)
             do {
                 try modelContext.save()
+                NotificationManager.shared.onShiftStarted()
             } catch {
                 modelContext.rollback()
                 ErrorHandler.shared.handle(error)
             }
         } else if let current = activeShift {
-            // Aktive Pause beenden bevor Schicht gestoppt wird
             if let activeBreak = (current.breaks ?? []).first(where: { $0.isActive }) {
                 activeBreak.endTime = Date()
             }
             current.endTime = Date()
             do {
                 try modelContext.save()
+                NotificationManager.shared.onShiftEnded()
             } catch {
                 modelContext.rollback()
                 ErrorHandler.shared.handle(error)
@@ -193,6 +194,8 @@ struct ContentView: View {
 
     private func toggleBreak() {
         guard let current = activeShift else { return }
+
+        let isEndingBreak = (current.breaks ?? []).contains { $0.isActive }
 
         if let activeBreak = (current.breaks ?? []).first(where: { $0.isActive }) {
             activeBreak.endTime = Date()
@@ -204,6 +207,11 @@ struct ContentView: View {
 
         do {
             try modelContext.save()
+            if isEndingBreak {
+                NotificationManager.shared.onBreakEnded(netWorkDurationSoFar: current.netDuration)
+            } else {
+                NotificationManager.shared.onBreakStarted()
+            }
         } catch {
             modelContext.rollback()
             ErrorHandler.shared.handle(error)
