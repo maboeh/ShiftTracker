@@ -35,3 +35,6 @@ credentials.json
 
 # Claude Code
 .opencode/
+.claude/
+AGENTS.md
+SHIFTTRACKER_ROADMAP.md
