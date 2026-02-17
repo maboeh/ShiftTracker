@@ -12,6 +12,7 @@ struct EmptyStateView: View {
         VStack(spacing: 16) {
             Image(systemName: "clock.badge.questionmark")
                 .font(.system(size: 60))
+                .dynamicTypeSize(...DynamicTypeSize.accessibility1)
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
             

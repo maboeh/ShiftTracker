@@ -12,6 +12,8 @@ struct WeekStatsCard: View {
     let overtime: Double
     let progress: Double
     let targetHours: Double
+    var shiftCount: Int = 0
+    var totalBreakMinutes: Double = 0
     
     private var accessibilityDescription: String {
         let hoursText = String(format: "%.1f", totalHours)
@@ -49,6 +51,20 @@ struct WeekStatsCard: View {
             .frame(height: 8)
             .accessibilityHidden(true)
             
+            if shiftCount > 0 {
+                HStack {
+                    Text("\(shiftCount) \(AppStrings.schichtenLabel)")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text("·")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(String(format: "%.0f Min. %@", totalBreakMinutes, AppStrings.pausenLabel))
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+            }
+
             HStack {
                 if overtime > 0 {
                     Text(AppStrings.ueberstunden)

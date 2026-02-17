@@ -12,6 +12,8 @@ struct SettingsView: View {
     @AppStorage("breakReminderEnabled") private var breakReminderEnabled = false
     @AppStorage("shiftReminderEnabled") private var shiftReminderEnabled = false
     @AppStorage("shiftReminderHours") private var shiftReminderHours = 8.0
+    @AppStorage("forgotClockOutEnabled") private var forgotClockOutEnabled = false
+    @AppStorage("weeklyReportEnabled") private var weeklyReportEnabled = false
 
     var body: some View {
         Form {
@@ -61,6 +63,28 @@ struct SettingsView: View {
                             .foregroundStyle(.secondary)
                     }
                 }
+
+                Toggle(AppStrings.vergessensAusstempeln, isOn: $forgotClockOutEnabled)
+                    .onChange(of: forgotClockOutEnabled) { _, newValue in
+                        NotificationManager.shared.isForgotClockOutEnabled = newValue
+                        if newValue {
+                            requestNotificationPermission()
+                        } else {
+                            NotificationManager.shared.cancelForgotClockOutReminder()
+                        }
+                    }
+
+                Toggle(AppStrings.wochenbericht, isOn: $weeklyReportEnabled)
+                    .onChange(of: weeklyReportEnabled) { _, newValue in
+                        if newValue {
+                            requestNotificationPermission()
+                            NotificationManager.shared.isWeeklyReportEnabled = true
+                            NotificationManager.shared.scheduleWeeklyReport()
+                        } else {
+                            NotificationManager.shared.isWeeklyReportEnabled = false
+                            NotificationManager.shared.cancelWeeklyReport()
+                        }
+                    }
             } header: {
                 Text(AppStrings.benachrichtigungen)
             } footer: {
@@ -78,6 +102,12 @@ struct SettingsView: View {
                     StatsView()
                 } label: {
                     Label(AppStrings.statistiken, systemImage: "chart.bar.fill")
+                }
+
+                NavigationLink {
+                    TemplatesView()
+                } label: {
+                    Label(AppStrings.vorlagen, systemImage: "doc.on.doc")
                 }
             }
 

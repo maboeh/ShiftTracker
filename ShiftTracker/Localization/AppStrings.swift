@@ -209,6 +209,52 @@ struct AppStrings {
     static let faqSicherheit = "Wie sichere ich die App?"
     static let faqSicherheitAntwort = "Unter Einstellungen → Sicherheit kannst du Face ID, Touch ID oder einen PIN einrichten."
 
+    // MARK: - Auto-Lock
+    static let autoLockVerzoegerung = "Sperre nach"
+    static let sofort = "Sofort"
+
+    // MARK: - Privacy
+    static let onboardingTitel5 = "Datenschutz"
+    static let onboardingText5 = "Deine Daten bleiben auf deinem Gerät. Kein Cloud-Upload, kein Tracking, keine Werbung."
+    static let datenschutzZustimmung = "Mit dem Start stimmst du der lokalen Datenverarbeitung zu."
+
+    // MARK: - Encryption
+    static let verschluesselt = "Verschlüsselt exportieren"
+    static let passwort = "Passwort"
+    static let passwortBestaetigen = "Passwort bestätigen"
+    static let passwoerterStimmenNicht = "Passwörter stimmen nicht überein"
+
+    // MARK: - Templates
+    static let vorlagen = "Vorlagen"
+    static let neueVorlage = "Neue Vorlage"
+    static let ausVorlage = "Aus Vorlage"
+    static let startzeit = "Startzeit"
+    static let standardDauer = "Dauer"
+    static let vorlageAnwenden = "Schicht starten"
+
+    // MARK: - Extended Notifications
+    static let vergessensAusstempeln = "Vergessenes Ausstempeln"
+    static let vergessensAusstempelnInfo = "Warnung nach 10h ohne Ausstempeln"
+    static let wochenbericht = "Wochenbericht"
+    static let wochenberichtInfo = "Zusammenfassung jeden Freitag um 17:00"
+    static let vergessensAusstempelnTitel = "Noch eingestempelt!"
+    static let vergessensAusstempelnText = "Deine Schicht läuft seit über 10 Stunden. Vergessen auszustempeln?"
+    static let wochenberichtTitel = "Wochenbericht"
+    static let wochenberichtText = "Schau dir deine Arbeitsstunden dieser Woche an."
+
+    // MARK: - Export History
+    static let letzteExporte = "Letzte Exporte"
+    static let keineExporte = "Noch keine Exporte"
+
+    // MARK: - Week Stats Extended
+    static let schichtenLabel = "Schichten"
+    static let pausenLabel = "Pausen"
+
+    // MARK: - Per-Type Wages
+    static let typSpezifischerLohn = "Stundenlohn (optional)"
+    static let standardLohn = "Standard"
+    static let aufschluesselungNachTyp = "Nach Schichttyp"
+
     // MARK: - Errors
     static let errorTitle = "Fehler"
     static let exportFailed = "Export fehlgeschlagen"

@@ -28,6 +28,14 @@ struct ShiftTypeEditView: View {
                     .onChange(of: selectedColor) { _, newValue in
                         shiftType.colorHex = newValue.toHex()
                     }
+                HStack {
+                    Text(AppStrings.typSpezifischerLohn)
+                    Spacer()
+                    TextField(AppStrings.standardLohn, value: $shiftType.hourlyRate, format: .currency(code: "EUR"))
+                        .keyboardType(.decimalPad)
+                        .multilineTextAlignment(.trailing)
+                        .frame(width: 100)
+                }
             }
 
             if let shifts = shiftType.shifts, !shifts.isEmpty {

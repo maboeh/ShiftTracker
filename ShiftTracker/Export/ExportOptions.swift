@@ -42,6 +42,7 @@ struct ExportOptions {
     var customDateRange: DateInterval?
     var fields: [ExportField] = ExportField.defaultFields
     var includeHeaders: Bool = true
+    var encryptionPassword: String? = nil
     
     var dateRange: DateInterval {
         switch dateRangePreset {

@@ -179,6 +179,37 @@ final class AuthManager {
         }
     }
 
+    // MARK: - Auto-Lock
+
+    var autoLockDelay: Double {
+        get {
+            guard UserDefaults.standard.object(forKey: AppConfiguration.autoLockDelayKey) != nil else {
+                return AppConfiguration.defaultTimeoutMinutes
+            }
+            return UserDefaults.standard.double(forKey: AppConfiguration.autoLockDelayKey)
+        }
+        set { UserDefaults.standard.set(newValue, forKey: AppConfiguration.autoLockDelayKey) }
+    }
+
+    private var backgroundEntryTime: Date?
+
+    func onEnteredBackground() {
+        guard isAppLockEnabled else { return }
+        if autoLockDelay == 0 {
+            isLocked = true
+        } else {
+            backgroundEntryTime = Date()
+        }
+    }
+
+    func onEnteredForeground() {
+        guard isAppLockEnabled, let entryTime = backgroundEntryTime else { return }
+        backgroundEntryTime = nil
+        if Date().timeIntervalSince(entryTime) >= autoLockDelay * 60 {
+            isLocked = true
+        }
+    }
+
     // MARK: - Lock/Unlock
 
     func lock() {

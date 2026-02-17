@@ -11,15 +11,16 @@ import SwiftData
 @Model
 class ShiftType {
     var name: String
-    var colorHex: String  // Speichern als Hex-String (z.B. "#0000FF")
-    
-    // Relationship: Welche Shifts gehören zu diesem Type?
+    var colorHex: String
+    var hourlyRate: Double?
+
     @Relationship(deleteRule: .nullify, inverse: \Shift.shiftType)
     var shifts: [Shift]?
-    
-    init(name: String, colorHex: String) {
+
+    init(name: String, colorHex: String, hourlyRate: Double? = nil) {
         self.name = name
         self.colorHex = colorHex
+        self.hourlyRate = hourlyRate
         self.shifts = []
     }
     

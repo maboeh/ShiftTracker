@@ -31,15 +31,20 @@ struct ShiftTrackerApp: App {
             .animation(.easeInOut(duration: 0.3), value: authManager.isLocked)
             .animation(.easeInOut(duration: 0.3), value: isOnboardingComplete)
             .onChange(of: scenePhase) { _, newPhase in
-                if newPhase == .background {
-                    authManager.lock()
+                switch newPhase {
+                case .background:
+                    authManager.onEnteredBackground()
+                case .active:
+                    authManager.onEnteredForeground()
+                default:
+                    break
                 }
             }
             .task {
                 await NotificationManager.shared.checkAuthorization()
             }
         }
-        .modelContainer(for: [Shift.self, ShiftType.self, Break.self]) { result in
+        .modelContainer(for: [Shift.self, ShiftType.self, Break.self, ShiftTemplate.self, ExportRecord.self]) { result in
             do {
                 let container = try result.get()
 

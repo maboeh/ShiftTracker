@@ -17,6 +17,7 @@ struct AppConfiguration {
     // MARK: - UserDefaults Keys
 
     static let weeklyHoursKey = "weeklyTargetHours"
+    static let autoLockDelayKey = "autoLockDelay"
 
     // MARK: - Computed Settings
 

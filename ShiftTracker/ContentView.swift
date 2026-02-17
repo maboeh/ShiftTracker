@@ -13,6 +13,7 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @AppStorage(AppConfiguration.weeklyHoursKey) private var weeklyTargetHours = AppConfiguration.defaultWeeklyHours
     @State private var showExportSheet = false
+    @State private var showTemplateSheet = false
 
     var activeShift: Shift? {
         shifts.first(where: { $0.endTime == nil })
@@ -53,14 +54,14 @@ struct ContentView: View {
         return result
     }
 
-    private var weekStats: (totalHours: Double, overtime: Double) {
+    private var weekStats: (totalHours: Double, overtime: Double, shiftCount: Int, breakMinutes: Double) {
         var calendar = Calendar.current
         calendar.firstWeekday = 2
 
         let now = Date()
 
         guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: now) else {
-            return (0, 0)
+            return (0, 0, 0, 0)
         }
 
         let thisWeekShifts = shifts.filter { shift in
@@ -72,8 +73,9 @@ struct ContentView: View {
         }
         let totalHours = totalSeconds / 3600
         let overtime = totalHours - weeklyTargetHours
-        
-        return (totalHours, overtime)
+        let breakMinutes = thisWeekShifts.reduce(0.0) { $0 + $1.totalBreakDuration } / 60
+
+        return (totalHours, overtime, thisWeekShifts.count, breakMinutes)
     }
 
     private var weekProgress: Double {
@@ -90,7 +92,9 @@ struct ContentView: View {
                             totalHours: weekStats.totalHours,
                             overtime: weekStats.overtime,
                             progress: weekProgress,
-                            targetHours: weeklyTargetHours
+                            targetHours: weeklyTargetHours,
+                            shiftCount: weekStats.shiftCount,
+                            totalBreakMinutes: weekStats.breakMinutes
                         )
                         .listRowInsets(EdgeInsets())
                         .listRowBackground(Color.clear)
@@ -123,11 +127,26 @@ struct ContentView: View {
                     }
                 }
 
-                ActionButton(
-                    state: shiftState,
-                    onToggleShift: toggleShift,
-                    onToggleBreak: toggleBreak
-                )
+                HStack(spacing: 12) {
+                    if shiftState == .inactive {
+                        Button {
+                            showTemplateSheet = true
+                        } label: {
+                            Image(systemName: "doc.on.doc")
+                                .font(.title3)
+                                .padding(12)
+                                .background(Color.blue.opacity(0.1))
+                                .clipShape(Circle())
+                        }
+                        .accessibilityLabel(AppStrings.ausVorlage)
+                    }
+
+                    ActionButton(
+                        state: shiftState,
+                        onToggleShift: toggleShift,
+                        onToggleBreak: toggleBreak
+                    )
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -161,6 +180,14 @@ struct ContentView: View {
             }
             .sheet(isPresented: $showExportSheet) {
                 ExportView()
+            }
+            .sheet(isPresented: $showTemplateSheet) {
+                NavigationStack {
+                    TemplatesView { template in
+                        showTemplateSheet = false
+                        startShiftFromTemplate(template)
+                    }
+                }
             }
             .errorAlert()
         }
@@ -212,6 +239,20 @@ struct ContentView: View {
             } else {
                 NotificationManager.shared.onBreakStarted()
             }
+        } catch {
+            modelContext.rollback()
+            ErrorHandler.shared.handle(error)
+        }
+    }
+
+    private func startShiftFromTemplate(_ template: ShiftTemplate) {
+        guard activeShift == nil else { return }
+        let newShift = Shift(startTime: Date(), endTime: nil)
+        newShift.shiftType = template.shiftType
+        modelContext.insert(newShift)
+        do {
+            try modelContext.save()
+            NotificationManager.shared.onShiftStarted()
         } catch {
             modelContext.rollback()
             ErrorHandler.shared.handle(error)

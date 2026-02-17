@@ -36,6 +36,16 @@ final class NotificationManager {
         set { UserDefaults.standard.set(newValue, forKey: "shiftReminderHours") }
     }
 
+    var isForgotClockOutEnabled: Bool {
+        get { UserDefaults.standard.bool(forKey: "forgotClockOutEnabled") }
+        set { UserDefaults.standard.set(newValue, forKey: "forgotClockOutEnabled") }
+    }
+
+    var isWeeklyReportEnabled: Bool {
+        get { UserDefaults.standard.bool(forKey: "weeklyReportEnabled") }
+        set { UserDefaults.standard.set(newValue, forKey: "weeklyReportEnabled") }
+    }
+
     private init() {}
 
     // MARK: - Authorization
@@ -110,16 +120,77 @@ final class NotificationManager {
         center.removePendingNotificationRequests(withIdentifiers: ["shiftReminder"])
     }
 
+    // MARK: - Forgot Clock-Out Reminder
+
+    func scheduleForgotClockOutReminder() {
+        guard isForgotClockOutEnabled, isAuthorized else { return }
+
+        let content = UNMutableNotificationContent()
+        content.title = AppStrings.vergessensAusstempelnTitel
+        content.body = AppStrings.vergessensAusstempelnText
+        content.sound = .default
+
+        let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 10 * 3600, repeats: false)
+        let request = UNNotificationRequest(identifier: "forgotClockOut", content: content, trigger: trigger)
+
+        Task {
+            do {
+                try await center.add(request)
+            } catch {
+                logger.error("Failed to schedule forgot clock-out reminder: \(error.localizedDescription, privacy: .public)")
+            }
+        }
+    }
+
+    func cancelForgotClockOutReminder() {
+        center.removePendingNotificationRequests(withIdentifiers: ["forgotClockOut"])
+    }
+
+    // MARK: - Weekly Report
+
+    func scheduleWeeklyReport() {
+        guard isWeeklyReportEnabled, isAuthorized else { return }
+
+        cancelWeeklyReport()
+
+        let content = UNMutableNotificationContent()
+        content.title = AppStrings.wochenberichtTitel
+        content.body = AppStrings.wochenberichtText
+        content.sound = .default
+
+        var dateComponents = DateComponents()
+        dateComponents.weekday = 6 // Freitag
+        dateComponents.hour = 17
+        dateComponents.minute = 0
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: dateComponents, repeats: true)
+        let request = UNNotificationRequest(identifier: "weeklyReport", content: content, trigger: trigger)
+
+        Task {
+            do {
+                try await center.add(request)
+            } catch {
+                logger.error("Failed to schedule weekly report: \(error.localizedDescription, privacy: .public)")
+            }
+        }
+    }
+
+    func cancelWeeklyReport() {
+        center.removePendingNotificationRequests(withIdentifiers: ["weeklyReport"])
+    }
+
     // MARK: - Shift Lifecycle
 
     func onShiftStarted() {
         scheduleBreakReminder()
         scheduleShiftReminder()
+        scheduleForgotClockOutReminder()
     }
 
     func onShiftEnded() {
         cancelBreakReminder()
         cancelShiftReminder()
+        cancelForgotClockOutReminder()
     }
 
     func onBreakStarted() {

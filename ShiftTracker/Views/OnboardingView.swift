@@ -16,7 +16,8 @@ struct OnboardingView: View {
             ("clock.badge.checkmark", AppStrings.onboardingTitel1, AppStrings.onboardingText1),
             ("pause.circle.fill", AppStrings.onboardingTitel2, AppStrings.onboardingText2),
             ("chart.bar.doc.horizontal", AppStrings.onboardingTitel3, AppStrings.onboardingText3),
-            ("lock.shield.fill", AppStrings.onboardingTitel4, AppStrings.onboardingText4)
+            ("lock.shield.fill", AppStrings.onboardingTitel4, AppStrings.onboardingText4),
+            ("hand.raised.fill", AppStrings.onboardingTitel5, AppStrings.onboardingText5)
         ]
     }
 

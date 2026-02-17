@@ -43,6 +43,16 @@ struct SecuritySettingsView: View {
                         ))
                     }
 
+                    Picker(AppStrings.autoLockVerzoegerung, selection: Binding(
+                        get: { authManager.autoLockDelay },
+                        set: { authManager.autoLockDelay = $0 }
+                    )) {
+                        Text(AppStrings.sofort).tag(0.0)
+                        Text("1 Min").tag(1.0)
+                        Text("2 Min").tag(2.0)
+                        Text("5 Min").tag(5.0)
+                    }
+
                     if authManager.isPINSet {
                         Button(AppStrings.pinAendern) {
                             showPINSetup = true
