@@ -11,17 +11,21 @@ struct EarningsCalculatorView: View {
     let shifts: [Shift]
     @AppStorage("hourlyRate") private var hourlyRate = 0.0
 
+    private var completedShifts: [Shift] {
+        shifts.filter { $0.endTime != nil }
+    }
+
     private var weekShifts: [Shift] {
         var calendar = Calendar.current
         calendar.firstWeekday = 2
         guard let interval = calendar.dateInterval(of: .weekOfYear, for: Date()) else { return [] }
-        return shifts.filter { $0.startTime >= interval.start && $0.startTime < interval.end }
+        return completedShifts.filter { $0.startTime >= interval.start && $0.startTime < interval.end }
     }
 
     private var monthShifts: [Shift] {
         let calendar = Calendar.current
         guard let interval = calendar.dateInterval(of: .month, for: Date()) else { return [] }
-        return shifts.filter { $0.startTime >= interval.start && $0.startTime < interval.end }
+        return completedShifts.filter { $0.startTime >= interval.start && $0.startTime < interval.end }
     }
 
     private var yearShifts: [Shift] {
@@ -29,7 +33,7 @@ struct EarningsCalculatorView: View {
         let year = calendar.component(.year, from: Date())
         guard let start = calendar.date(from: DateComponents(year: year, month: 1, day: 1)),
               let end = calendar.date(from: DateComponents(year: year + 1, month: 1, day: 1)) else { return [] }
-        return shifts.filter { $0.startTime >= start && $0.startTime < end }
+        return completedShifts.filter { $0.startTime >= start && $0.startTime < end }
     }
 
     var body: some View {
@@ -45,6 +49,7 @@ struct EarningsCalculatorView: View {
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
                         .frame(width: 100)
+                        .accessibilityLabel(AppStrings.stundenlohn)
                 }
             } footer: {
                 Text(AppStrings.stundenlohnInfo)

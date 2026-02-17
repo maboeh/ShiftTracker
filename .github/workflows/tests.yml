@@ -39,8 +39,14 @@ jobs:
             -project ShiftTracker.xcodeproj \
             -scheme ShiftTracker \
             -destination 'platform=iOS Simulator,name=iPhone 16' \
+            -enableCodeCoverage YES \
             -resultBundlePath TestResults.xcresult \
             -quiet
+
+      - name: Code Coverage Summary
+        if: always()
+        run: |
+          xcrun xccov view --report TestResults.xcresult --only-targets 2>/dev/null || echo "Coverage report not available"
 
       - name: Upload Test Results
         uses: actions/upload-artifact@v4

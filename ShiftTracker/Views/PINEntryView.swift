@@ -25,6 +25,7 @@ struct PINEntryView: View {
                 Image(systemName: "lock.fill")
                     .font(.system(size: 48))
                     .foregroundStyle(.blue)
+                    .accessibilityHidden(true)
 
                 Text(AppStrings.pinEingeben)
                     .font(.title2)
@@ -103,6 +104,7 @@ struct PINDotsView: View {
                     .frame(width: 16, height: 16)
             }
         }
+        .accessibilityLabel("\(count) Ziffern eingegeben")
     }
 }
 
@@ -139,6 +141,7 @@ struct PINKeypadView: View {
                                     .frame(width: 72, height: 56)
                                     .foregroundStyle(.primary)
                             }
+                            .accessibilityLabel(AppStrings.loeschen)
                         } else {
                             Button {
                                 guard pin.count < maxDigits else { return }

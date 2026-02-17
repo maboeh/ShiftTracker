@@ -13,7 +13,7 @@ struct ExportView: View {
     @Environment(\.modelContext) private var modelContext
     @ObservedObject private var exportManager = ExportManager.shared
     @Query(sort: \Shift.startTime, order: .reverse) private var allShifts: [Shift]
-    @Query(sort: \ExportRecord.exportedAt, order: .reverse) private var exportHistory: [ExportRecord]
+    @Query(sort: \ExportRecord.exportedAt, order: .reverse, animation: .default) private var exportHistory: [ExportRecord]
 
     @State private var selectedFormat: ExportFormat = .csv
     @State private var selectedDateRange: DateRangePreset = .thisWeek
@@ -83,6 +83,7 @@ struct ExportView: View {
                         if exportManager.isExporting {
                             ProgressView()
                                 .frame(maxWidth: .infinity)
+                                .accessibilityLabel(AppStrings.exportieren)
                         } else {
                             Label(AppStrings.exportieren, systemImage: "square.and.arrow.up")
                                 .frame(maxWidth: .infinity)
@@ -104,6 +105,7 @@ struct ExportView: View {
                                 }
                                 Spacer()
                                 Text(record.format)
+                                    .accessibilityHidden(true)
                                     .font(.caption)
                                     .padding(.horizontal, 8)
                                     .padding(.vertical, 2)

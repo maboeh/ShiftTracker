@@ -49,7 +49,7 @@ struct ContentView: View {
         if !heute.isEmpty { result.append((AppStrings.heute, heute)) }
         if !gestern.isEmpty { result.append((AppStrings.gestern, gestern)) }
         if !dieseWoche.isEmpty { result.append((AppStrings.dieseWoche, dieseWoche)) }
-        if !aelter.isEmpty { result.append((AppStrings.aelter, aelter)) }
+        if !aelter.isEmpty { result.append((AppStrings.aelter, Array(aelter.prefix(50)))) }
 
         return result
     }
@@ -176,6 +176,7 @@ struct ContentView: View {
                             .font(.caption)
                             .foregroundStyle(.secondary)
                     }
+                    .accessibilityElement(children: .combine)
                 }
             }
             .sheet(isPresented: $showExportSheet) {

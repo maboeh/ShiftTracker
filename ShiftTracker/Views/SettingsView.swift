@@ -28,6 +28,7 @@ struct SettingsView: View {
                         .keyboardType(.decimalPad)
                         .multilineTextAlignment(.trailing)
                         .frame(width: 60)
+                        .accessibilityLabel(AppStrings.wochenStunden)
                     Text(AppStrings.std)
                         .foregroundStyle(.secondary)
                 }
@@ -59,6 +60,7 @@ struct SettingsView: View {
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                             .frame(width: 40)
+                            .accessibilityLabel(AppStrings.erinnerungNach)
                         Text(AppStrings.std)
                             .foregroundStyle(.secondary)
                     }

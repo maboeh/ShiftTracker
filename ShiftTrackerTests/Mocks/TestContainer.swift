@@ -14,7 +14,7 @@ enum TestContainer {
     static func create() throws -> ModelContainer {
         let config = ModelConfiguration(isStoredInMemoryOnly: true)
         let container = try ModelContainer(
-            for: Shift.self, ShiftType.self, Break.self,
+            for: Shift.self, ShiftType.self, Break.self, ShiftTemplate.self, ExportRecord.self,
             configurations: config
         )
         return container

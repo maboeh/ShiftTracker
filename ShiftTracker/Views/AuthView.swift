@@ -21,6 +21,7 @@ struct AuthView: View {
             Image(systemName: "lock.shield.fill")
                 .font(.system(size: 64))
                 .foregroundStyle(.blue)
+                .accessibilityHidden(true)
 
             Text(AppStrings.appName)
                 .font(.largeTitle)

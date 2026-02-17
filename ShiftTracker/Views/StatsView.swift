@@ -117,6 +117,7 @@ struct MonthlyStatsView: View {
                 }
                 .chartYAxisLabel(AppStrings.stunden)
                 .frame(height: 220)
+                .accessibilityLabel("Wochenstunden-Diagramm, \(weeklyData.count) Wochen, gesamt \(String(format: "%.1f", totalHours)) Stunden")
             } header: {
                 Text(AppStrings.stundenProWoche)
             }
@@ -193,6 +194,7 @@ struct YearlyStatsView: View {
                 }
                 .chartYAxisLabel(AppStrings.stunden)
                 .frame(height: 220)
+                .accessibilityLabel("Monatsstunden-Diagramm, \(monthlyData.count) Monate, gesamt \(String(format: "%.1f", totalHours)) Stunden")
             } header: {
                 Text(AppStrings.stundenProMonat)
             }

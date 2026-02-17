@@ -53,6 +53,7 @@ struct TemplatesView: View {
                                 Image(systemName: "play.circle.fill")
                                     .foregroundStyle(.green)
                                     .font(.title3)
+                                    .accessibilityHidden(true)
                             }
                         }
                     }
@@ -127,6 +128,7 @@ struct TemplateAddView: View {
                             .keyboardType(.decimalPad)
                             .multilineTextAlignment(.trailing)
                             .frame(width: 50)
+                            .accessibilityLabel(AppStrings.standardDauer)
                         Text(AppStrings.std)
                             .foregroundStyle(.secondary)
                     }

@@ -40,6 +40,7 @@ struct OnboardingView: View {
                         Image(systemName: page.icon)
                             .font(.system(size: 72))
                             .foregroundStyle(.blue)
+                            .accessibilityHidden(true)
 
                         Text(page.title)
                             .font(.title)
