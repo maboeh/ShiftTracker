@@ -17,7 +17,7 @@ struct ShiftTrackerApp: App {
         WindowGroup {
             ZStack {
                 if isOnboardingComplete {
-                    ContentView()
+                    MainTabView()
                 } else {
                     OnboardingView(isComplete: $isOnboardingComplete)
                         .transition(.opacity)
@@ -42,6 +42,10 @@ struct ShiftTrackerApp: App {
             }
             .task {
                 await NotificationManager.shared.checkAuthorization()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                let context = ModelContainerProvider.shared.mainContext
+                PlannedShiftAutoStartService.shared.checkAndStartDueShifts(modelContext: context)
             }
         }
         .modelContainer(ModelContainerProvider.shared)

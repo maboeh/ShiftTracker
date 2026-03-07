@@ -17,11 +17,15 @@ class ShiftType {
     @Relationship(deleteRule: .nullify, inverse: \Shift.shiftType)
     var shifts: [Shift]?
 
+    @Relationship(deleteRule: .nullify, inverse: \PlannedShift.shiftType)
+    var plannedShifts: [PlannedShift]?
+
     init(name: String, colorHex: String, hourlyRate: Double? = nil) {
         self.name = name
         self.colorHex = colorHex
         self.hourlyRate = hourlyRate
         self.shifts = []
+        self.plannedShifts = []
     }
     
     // Computed Property: Hex → SwiftUI Color

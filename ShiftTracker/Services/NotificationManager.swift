@@ -179,6 +179,40 @@ final class NotificationManager {
         center.removePendingNotificationRequests(withIdentifiers: ["weeklyReport"])
     }
 
+    // MARK: - Planned Shift Reminders
+
+    func schedulePlannedShiftReminder(identifier: String, title: String, body: String, triggerDate: Date) {
+        guard isAuthorized else { return }
+
+        let content = UNMutableNotificationContent()
+        content.title = title
+        content.body = body
+        content.sound = .default
+
+        let components = Calendar.current.dateComponents([.year, .month, .day, .hour, .minute], from: triggerDate)
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+        let request = UNNotificationRequest(identifier: identifier, content: content, trigger: trigger)
+
+        Task {
+            do {
+                try await center.add(request)
+            } catch {
+                logger.error("Failed to schedule planned shift reminder: \(error.localizedDescription, privacy: .public)")
+            }
+        }
+    }
+
+    func cancelPlannedShiftReminder(identifier: String) {
+        center.removePendingNotificationRequests(withIdentifiers: [identifier])
+    }
+
+    func cancelAllPlannedShiftReminders() {
+        center.getPendingNotificationRequests { requests in
+            let ids = requests.filter { $0.identifier.hasPrefix("plannedShift_") }.map(\.identifier)
+            self.center.removePendingNotificationRequests(withIdentifiers: ids)
+        }
+    }
+
     // MARK: - Shift Lifecycle
 
     func onShiftStarted() {

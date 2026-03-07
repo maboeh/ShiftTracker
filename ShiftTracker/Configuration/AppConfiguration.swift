@@ -18,6 +18,9 @@ struct AppConfiguration {
 
     static let weeklyHoursKey = "weeklyTargetHours"
     static let autoLockDelayKey = "autoLockDelay"
+    static let plannedShiftReminderEnabledKey = "plannedShiftReminderEnabled"
+    static let defaultReminderMinutesKey = "defaultReminderMinutes"
+    static let autoStartEnabledKey = "autoStartEnabled"
 
     // MARK: - Computed Settings
 

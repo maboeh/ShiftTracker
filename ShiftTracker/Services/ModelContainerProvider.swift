@@ -17,7 +17,9 @@ enum ModelContainerProvider {
             Break.self,
             ShiftType.self,
             ShiftTemplate.self,
-            ExportRecord.self
+            ExportRecord.self,
+            PlannedShift.self,
+            ShiftPattern.self
         ])
         let config = ModelConfiguration(
             schema: schema,

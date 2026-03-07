@@ -7,6 +7,12 @@
 
 import SwiftUI
 
+private extension Int {
+    func nonZeroOr(_ defaultValue: Int) -> Int {
+        self != 0 ? self : defaultValue
+    }
+}
+
 struct SettingsView: View {
     @AppStorage(AppConfiguration.weeklyHoursKey) private var weeklyTargetHours = AppConfiguration.defaultWeeklyHours
     @AppStorage("breakReminderEnabled") private var breakReminderEnabled = false
@@ -91,6 +97,36 @@ struct SettingsView: View {
                 Text(AppStrings.benachrichtigungen)
             } footer: {
                 Text(AppStrings.pausenErinnerungInfo)
+            }
+
+            Section(AppStrings.schichtplanung) {
+                Toggle(AppStrings.autoStart, isOn: Binding(
+                    get: { UserDefaults.standard.bool(forKey: AppConfiguration.autoStartEnabledKey) },
+                    set: { UserDefaults.standard.set($0, forKey: AppConfiguration.autoStartEnabledKey) }
+                ))
+
+                Toggle(AppStrings.erinnerungenFuerGeplanteSchichten, isOn: Binding(
+                    get: { UserDefaults.standard.bool(forKey: AppConfiguration.plannedShiftReminderEnabledKey) },
+                    set: {
+                        UserDefaults.standard.set($0, forKey: AppConfiguration.plannedShiftReminderEnabledKey)
+                        if $0 { requestNotificationPermission() }
+                    }
+                ))
+
+                Picker(AppStrings.standardErinnerungszeit, selection: Binding(
+                    get: { UserDefaults.standard.integer(forKey: AppConfiguration.defaultReminderMinutesKey).nonZeroOr(30) },
+                    set: { UserDefaults.standard.set($0, forKey: AppConfiguration.defaultReminderMinutesKey) }
+                )) {
+                    Text(AppStrings.minVorher15).tag(15)
+                    Text(AppStrings.minVorher30).tag(30)
+                    Text(AppStrings.minVorher60).tag(60)
+                }
+
+                NavigationLink {
+                    ShiftPatternListView()
+                } label: {
+                    Label(AppStrings.schichtMuster, systemImage: "repeat")
+                }
             }
 
             Section(AppStrings.verwaltung) {
