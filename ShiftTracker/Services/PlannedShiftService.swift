@@ -22,13 +22,15 @@ final class PlannedShiftService {
     func createPlannedShift(date: Date, startTime: Date, endTime: Date,
                             shiftType: ShiftType? = nil, template: ShiftTemplate? = nil,
                             reminderMinutesBefore: Int = 30,
-                            isAutoStartEnabled: Bool = false) throws -> PlannedShift {
+                            isAutoStartEnabled: Bool = false,
+                            notes: String = "") throws -> PlannedShift {
         let planned = PlannedShift(
             plannedDate: date,
             startTime: startTime,
             endTime: endTime,
             shiftType: shiftType,
             template: template,
+            notes: notes,
             isAutoStartEnabled: isAutoStartEnabled,
             reminderMinutesBefore: reminderMinutesBefore
         )
@@ -105,7 +107,8 @@ final class PlannedShiftService {
     // MARK: - Notifications
 
     func scheduleReminder(for planned: PlannedShift) {
-        guard planned.reminderMinutesBefore > 0 else { return }
+        guard planned.reminderMinutesBefore > 0,
+              UserDefaults.standard.bool(forKey: AppConfiguration.plannedShiftReminderEnabledKey) else { return }
 
         let triggerDate = planned.startTime.addingTimeInterval(-Double(planned.reminderMinutesBefore) * 60)
         guard triggerDate > Date() else { return }

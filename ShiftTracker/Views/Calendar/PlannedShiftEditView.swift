@@ -62,7 +62,7 @@ struct PlannedShiftEditView: View {
 
             Section {
                 Picker(AppStrings.schichtTyp, selection: $selectedShiftType) {
-                    Text(AppStrings.keineErinnerung).tag(ShiftType?.none)
+                    Text(AppStrings.keineAuswahl).tag(ShiftType?.none)
                     ForEach(shiftTypes, id: \.persistentModelID) { type in
                         HStack {
                             Circle()
@@ -142,7 +142,8 @@ struct PlannedShiftEditView: View {
                     endTime: actualEnd,
                     shiftType: selectedShiftType,
                     reminderMinutesBefore: reminderMinutes,
-                    isAutoStartEnabled: isAutoStartEnabled
+                    isAutoStartEnabled: isAutoStartEnabled,
+                    notes: notes
                 )
             }
             HapticFeedback.success()

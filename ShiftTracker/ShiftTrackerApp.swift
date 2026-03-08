@@ -44,6 +44,7 @@ struct ShiftTrackerApp: App {
                 await NotificationManager.shared.checkAuthorization()
             }
             .onReceive(NotificationCenter.default.publisher(for: UIApplication.didBecomeActiveNotification)) { _ in
+                guard !authManager.isLocked else { return }
                 let context = ModelContainerProvider.shared.mainContext
                 PlannedShiftAutoStartService.shared.checkAndStartDueShifts(modelContext: context)
             }

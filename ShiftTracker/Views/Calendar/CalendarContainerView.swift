@@ -16,7 +16,6 @@ struct CalendarContainerView: View {
     @State private var viewMode: CalendarViewMode = .month
     @State private var displayedMonth: Date = Date()
     @State private var showAddPlannedSheet = false
-    @State private var showPatternList = false
 
     var body: some View {
         NavigationStack {

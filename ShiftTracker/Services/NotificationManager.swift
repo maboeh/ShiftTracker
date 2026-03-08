@@ -206,13 +206,6 @@ final class NotificationManager {
         center.removePendingNotificationRequests(withIdentifiers: [identifier])
     }
 
-    func cancelAllPlannedShiftReminders() {
-        center.getPendingNotificationRequests { requests in
-            let ids = requests.filter { $0.identifier.hasPrefix("plannedShift_") }.map(\.identifier)
-            self.center.removePendingNotificationRequests(withIdentifiers: ids)
-        }
-    }
-
     // MARK: - Shift Lifecycle
 
     func onShiftStarted() {

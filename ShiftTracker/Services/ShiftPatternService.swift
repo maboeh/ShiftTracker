@@ -48,12 +48,13 @@ final class ShiftPatternService {
 
         let startFrom = pattern.generatedUntil ?? pattern.startDate
         let totalDays = weeks * 7
+        let daysSinceStart = calendar.dateComponents([.day], from: calendar.startOfDay(for: pattern.startDate), to: calendar.startOfDay(for: startFrom)).day ?? 0
         var generated: [PlannedShift] = []
 
         for dayOffset in 0..<totalDays {
             guard let date = calendar.date(byAdding: .day, value: dayOffset, to: startFrom) else { continue }
 
-            let entryIndex = dayOffset % entries.count
+            let entryIndex = (daysSinceStart + dayOffset) % entries.count
             let entry = entries[entryIndex]
 
             guard !entry.isFreeDay else { continue }

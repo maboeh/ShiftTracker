@@ -119,16 +119,6 @@ final class ShiftService {
         updateLiveActivity(shift: activeShift, state: .active, breakStartTime: nil)
     }
 
-    // MARK: - Planned Shift Conversion
-
-    @discardableResult
-    func startShiftFromPlanned(_ planned: PlannedShift) throws -> Shift {
-        let shift = try startShift(shiftType: planned.shiftType)
-        planned.linkedShift = shift
-        try modelContext.save()
-        return shift
-    }
-
     // MARK: - Widget & Live Activity Refresh
 
     private func reloadWidgets() {
