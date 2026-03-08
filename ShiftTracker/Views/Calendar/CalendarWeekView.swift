@@ -10,9 +10,11 @@ import SwiftData
 
 struct CalendarWeekView: View {
     @Binding var selectedDate: Date
+    let refreshID: UUID
 
-    @Query(sort: \Shift.startTime) var allShifts: [Shift]
-    @Query(sort: \PlannedShift.startTime) var allPlannedShifts: [PlannedShift]
+    @Environment(\.modelContext) private var modelContext
+    @State private var weekShifts: [Shift] = []
+    @State private var weekPlannedShifts: [PlannedShift] = []
 
     private let calendar: Calendar = {
         var cal = Calendar.current
@@ -26,12 +28,16 @@ struct CalendarWeekView: View {
     }
 
     private func shiftsForDay(_ date: Date) -> [Shift] {
-        allShifts.filter { calendar.isDate($0.startTime, inSameDayAs: date) }
+        weekShifts.filter { calendar.isDate($0.startTime, inSameDayAs: date) }
     }
 
     private func plannedShiftsForDay(_ date: Date) -> [PlannedShift] {
         let dayStart = calendar.startOfDay(for: date)
-        return allPlannedShifts.filter { $0.plannedDate == dayStart }
+        return weekPlannedShifts.filter { $0.plannedDate == dayStart }
+    }
+
+    private var currentWeekStart: Date {
+        calendar.dateInterval(of: .weekOfYear, for: selectedDate)?.start ?? selectedDate
     }
 
     var body: some View {
@@ -86,6 +92,21 @@ struct CalendarWeekView: View {
             }
             .frame(maxHeight: 200)
         }
+        .task(id: WeekViewKey(weekStart: currentWeekStart, refreshID: refreshID)) {
+            loadData()
+        }
+    }
+
+    private func loadData() {
+        guard let weekInterval = calendar.dateInterval(of: .weekOfYear, for: selectedDate) else { return }
+        let shiftService = ShiftService(modelContext: modelContext)
+        let plannedService = PlannedShiftService(modelContext: modelContext)
+        do {
+            weekShifts = try shiftService.fetchShifts(in: weekInterval)
+            weekPlannedShifts = try plannedService.fetchPlannedShifts(in: weekInterval)
+        } catch {
+            ErrorHandler.shared.handle(error)
+        }
     }
 
     private var weekTitle: String {
@@ -97,6 +118,11 @@ struct CalendarWeekView: View {
         let endDate = calendar.date(byAdding: .day, value: 6, to: weekInterval.start) ?? weekInterval.end
         return "\(formatter.string(from: weekInterval.start)) – \(formatter.string(from: endDate))"
     }
+}
+
+private struct WeekViewKey: Equatable {
+    let weekStart: Date
+    let refreshID: UUID
 }
 
 // MARK: - Week Day Column

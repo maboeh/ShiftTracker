@@ -10,11 +10,12 @@ import SwiftData
 
 struct CalendarDayDetailView: View {
     let date: Date
+    let refreshID: UUID
 
-    @Query(sort: \Shift.startTime) var allShifts: [Shift]
-    @Query(sort: \PlannedShift.startTime) var allPlannedShifts: [PlannedShift]
     @Environment(\.modelContext) private var modelContext
 
+    @State private var dayShifts: [Shift] = []
+    @State private var dayPlannedShifts: [PlannedShift] = []
     @State private var editingPlanned: PlannedShift?
 
     private let calendar: Calendar = {
@@ -22,15 +23,6 @@ struct CalendarDayDetailView: View {
         cal.firstWeekday = 2
         return cal
     }()
-
-    private var dayShifts: [Shift] {
-        allShifts.filter { calendar.isDate($0.startTime, inSameDayAs: date) }
-    }
-
-    private var dayPlannedShifts: [PlannedShift] {
-        let dayStart = calendar.startOfDay(for: date)
-        return allPlannedShifts.filter { $0.plannedDate == dayStart }
-    }
 
     private var dateTitle: String {
         let formatter = DateFormatter()
@@ -99,10 +91,28 @@ struct CalendarDayDetailView: View {
             }
         }
         .listStyle(.insetGrouped)
-        .sheet(item: $editingPlanned) { planned in
+        .sheet(item: $editingPlanned, onDismiss: {
+            loadData()
+        }) { planned in
             NavigationStack {
                 PlannedShiftEditView(editing: planned)
             }
+        }
+        .task(id: DayDetailKey(date: calendar.startOfDay(for: date), refreshID: refreshID)) {
+            loadData()
+        }
+    }
+
+    private func loadData() {
+        let shiftService = ShiftService(modelContext: modelContext)
+        let plannedService = PlannedShiftService(modelContext: modelContext)
+        let dayStart = calendar.startOfDay(for: date)
+        guard let dayEnd = calendar.date(byAdding: .day, value: 1, to: dayStart) else { return }
+        do {
+            dayShifts = try shiftService.fetchShifts(in: DateInterval(start: dayStart, end: dayEnd))
+            dayPlannedShifts = try plannedService.fetchPlannedShifts(for: date)
+        } catch {
+            ErrorHandler.shared.handle(error)
         }
     }
 
@@ -110,6 +120,7 @@ struct CalendarDayDetailView: View {
         let service = PlannedShiftService(modelContext: modelContext)
         do {
             try service.deletePlannedShift(planned)
+            loadData()
             HapticFeedback.lightImpact()
         } catch {
             ErrorHandler.shared.handle(error)
@@ -122,11 +133,17 @@ struct CalendarDayDetailView: View {
         do {
             try plannedService.convertToShift(planned, shiftService: shiftService)
             NotificationManager.shared.onShiftStarted()
+            loadData()
             HapticFeedback.success()
         } catch {
             ErrorHandler.shared.handle(error)
         }
     }
+}
+
+private struct DayDetailKey: Equatable {
+    let date: Date
+    let refreshID: UUID
 }
 
 // MARK: - Planned Shift Row

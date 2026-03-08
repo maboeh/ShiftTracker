@@ -16,6 +16,7 @@ struct CalendarContainerView: View {
     @State private var viewMode: CalendarViewMode = .month
     @State private var displayedMonth: Date = Date()
     @State private var showAddPlannedSheet = false
+    @State private var refreshID = UUID()
 
     var body: some View {
         NavigationStack {
@@ -32,17 +33,19 @@ struct CalendarContainerView: View {
                 case .month:
                     CalendarMonthView(
                         selectedDate: $selectedDate,
-                        displayedMonth: $displayedMonth
+                        displayedMonth: $displayedMonth,
+                        refreshID: refreshID
                     )
                 case .week:
                     CalendarWeekView(
-                        selectedDate: $selectedDate
+                        selectedDate: $selectedDate,
+                        refreshID: refreshID
                     )
                 }
 
                 Divider()
 
-                CalendarDayDetailView(date: selectedDate)
+                CalendarDayDetailView(date: selectedDate, refreshID: refreshID)
             }
             .navigationTitle(AppStrings.kalender)
             .navigationBarTitleDisplayMode(.inline)
@@ -65,7 +68,9 @@ struct CalendarContainerView: View {
                     .accessibilityLabel(AppStrings.neueGeplanteSchicht)
                 }
             }
-            .sheet(isPresented: $showAddPlannedSheet) {
+            .sheet(isPresented: $showAddPlannedSheet, onDismiss: {
+                refreshID = UUID()
+            }) {
                 NavigationStack {
                     PlannedShiftEditView(initialDate: selectedDate)
                 }

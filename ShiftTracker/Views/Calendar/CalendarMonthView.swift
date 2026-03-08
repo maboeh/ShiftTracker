@@ -11,9 +11,11 @@ import SwiftData
 struct CalendarMonthView: View {
     @Binding var selectedDate: Date
     @Binding var displayedMonth: Date
+    let refreshID: UUID
 
-    @Query(sort: \Shift.startTime) var allShifts: [Shift]
-    @Query(sort: \PlannedShift.startTime) var allPlannedShifts: [PlannedShift]
+    @Environment(\.modelContext) private var modelContext
+    @State private var monthShifts: [Shift] = []
+    @State private var monthPlannedShifts: [PlannedShift] = []
 
     private let calendar: Calendar = {
         var cal = Calendar.current
@@ -60,12 +62,12 @@ struct CalendarMonthView: View {
     }
 
     private func shiftsForDay(_ date: Date) -> [Shift] {
-        allShifts.filter { calendar.isDate($0.startTime, inSameDayAs: date) }
+        monthShifts.filter { calendar.isDate($0.startTime, inSameDayAs: date) }
     }
 
     private func plannedShiftsForDay(_ date: Date) -> [PlannedShift] {
         let dayStart = calendar.startOfDay(for: date)
-        return allPlannedShifts.filter { $0.plannedDate == dayStart }
+        return monthPlannedShifts.filter { $0.plannedDate == dayStart }
     }
 
     var body: some View {
@@ -134,7 +136,27 @@ struct CalendarMonthView: View {
             .padding(.horizontal, 8)
         }
         .padding(.bottom, 8)
+        .task(id: DisplayedMonthKey(month: displayedMonth, refreshID: refreshID)) {
+            loadData()
+        }
     }
+
+    private func loadData() {
+        guard let monthInterval = calendar.dateInterval(of: .month, for: displayedMonth) else { return }
+        let shiftService = ShiftService(modelContext: modelContext)
+        let plannedService = PlannedShiftService(modelContext: modelContext)
+        do {
+            monthShifts = try shiftService.fetchShifts(in: monthInterval)
+            monthPlannedShifts = try plannedService.fetchPlannedShifts(in: monthInterval)
+        } catch {
+            ErrorHandler.shared.handle(error)
+        }
+    }
+}
+
+private struct DisplayedMonthKey: Equatable {
+    let month: Date
+    let refreshID: UUID
 }
 
 // MARK: - Day Cell

@@ -29,6 +29,16 @@ final class ShiftService {
         return try modelContext.fetch(descriptor).first
     }
 
+    func fetchShifts(in interval: DateInterval) throws -> [Shift] {
+        let start = interval.start
+        let end = interval.end
+        let descriptor = FetchDescriptor<Shift>(
+            predicate: #Predicate<Shift> { $0.startTime >= start && $0.startTime < end },
+            sortBy: [SortDescriptor(\Shift.startTime)]
+        )
+        return try modelContext.fetch(descriptor)
+    }
+
     func getCurrentState() throws -> ShiftState {
         guard let activeShift = try fetchActiveShift() else {
             return .inactive
